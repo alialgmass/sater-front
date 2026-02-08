@@ -4,7 +4,12 @@ export default {
     },
 
     target: 'static', // default is 'server'
-    
+
+    // Runtime configuration for API base URL
+    publicRuntimeConfig: {
+        apiBase: process.env.API_BASE_URL || 'http://localhost:8000'
+    },
+
     // Global page headers (https://go.nuxtjs.dev/config-head)
     head: {
         title: 'Flone - VueJS eCommerce Template',
@@ -17,7 +22,7 @@ export default {
         link: [
             { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
         ],
-        
+
     },
 
     // Global CSS (https://go.nuxtjs.dev/config-css)
