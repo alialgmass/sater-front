@@ -118,7 +118,6 @@
                 this.currentPage = Number(page);
                 this.fetchProducts()
             },
-        },
 
             discountedPrice(product) {
                 return product.price - (product.price * product.discount / 100)

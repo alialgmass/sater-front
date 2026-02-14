@@ -32,6 +32,12 @@ export const mutations = {
     }
 }
 
+export const getters = {
+    getNewProducts: state => state.products.filter(item => item.is_new) || [],
+    getBestProducts: state => state.products.filter(item => item.is_featured) || [],
+    getSaleProducts: state => state.products.filter(item => item.sale_price) || [],
+}
+
 export const actions = {
     async fetchProducts({ commit }, params) {
         commit('SET_LOADING', true)

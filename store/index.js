@@ -11,6 +11,9 @@ export const state = () => ({
 export const getters = {
     // Bridge getters to modules
     getProducts: state => state.products.products,
+    getNewProducts: (state, getters) => getters['products/getNewProducts'],
+    getBestProducts: (state, getters) => getters['products/getBestProducts'],
+    getSaleProducts: (state, getters) => getters['products/getSaleProducts'],
     getCart: state => state.cart.cart,
     cartItemCount: (state, getters) => getters['cart/cartItemCount'],
     getWishlist: state => state.wishlist.wishlist,

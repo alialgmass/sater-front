@@ -19,6 +19,9 @@
             BlogWrapper: () => import('@/components/BlogWrapper'),
             TheFooter: () => import('@/components/TheFooter'),
         },
+        mounted() {
+            this.$store.dispatch('products/fetchProducts')
+        },
         head() {
             return {
                 title: 'Home Fashion One'

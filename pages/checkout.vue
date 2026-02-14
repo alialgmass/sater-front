@@ -148,6 +148,13 @@
 </template>
 
 <script>
+    export default {
+        components: {
+            HeaderWithTopbar: () => import("@/components/HeaderWithTopbar"),
+            Breadcrumb: () => import("@/components/Breadcrumb"),
+            TheFooter: () => import("@/components/TheFooter"),
+        },
+
         data() {
             return {
                 form: {
@@ -202,4 +209,11 @@
                 }
             }
         },
+
+        head() {
+            return {
+                title: "Checkout"
+            }
+        },
+    };
 </script>
