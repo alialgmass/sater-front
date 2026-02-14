@@ -62,28 +62,10 @@
                 <li>
                     <ul>
                         <li class="mega-menu-title">
-                            <n-link to="">shop layout</n-link>
+                            <n-link to="/shop">Categories</n-link>
                         </li>
-                        <li>
-                            <n-link to="/shop">shop grid standard</n-link>
-                        </li>
-                        <li>
-                            <n-link to="/shop-grid-two-column">shop grid two column</n-link>
-                        </li>
-                        <li>
-                            <n-link to="/shop-grid-no-sidebar">shop grid no sidebar</n-link>
-                        </li>
-                        <li>
-                            <n-link to="/shop-grid-full-width">shop grid full width</n-link>
-                        </li>
-                        <li>
-                            <n-link to="/shop-grid-right-sidebar">shop grid right sidebar</n-link>
-                        </li>
-                        <li>
-                            <n-link to="/shop-list-standard">shop list standard</n-link>
-                        </li>
-                        <li>
-                            <n-link to="/shop-list-full-width">shop list full width</n-link>
+                        <li v-for="(category, index) in categories" :key="index">
+                            <n-link :to="`/shop?category=${category}`">{{ category }}</n-link>
                         </li>
                     </ul>
                 </li>
@@ -151,3 +133,13 @@
         </li>
     </ul>
 </template>
+
+<script>
+    export default {
+        computed: {
+            categories() {
+                return this.$store.getters.categoryList
+            }
+        }
+    }
+</script>

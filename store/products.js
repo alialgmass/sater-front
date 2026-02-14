@@ -70,7 +70,8 @@ export const actions = {
     async fetchCategories({ commit }) {
         try {
             const categories = await this.$productService.getCategories()
-            commit('SET_CATEGORIES', categories)
+            const categoryData = categories.data || categories
+            commit('SET_CATEGORIES', Array.isArray(categoryData) ? categoryData : [])
         } catch (error) {
             console.error('Failed to fetch categories', error)
         }

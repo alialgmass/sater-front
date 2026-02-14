@@ -16,13 +16,13 @@ export const getters = {
     getSaleProducts: (state, getters) => getters['products/getSaleProducts'],
     getCart: state => state.cart.cart,
     cartItemCount: (state, getters) => getters['cart/cartItemCount'],
-    getWishlist: state => state.wishlist.wishlist,
+    getWishlist: state => state.wishlist ? state.wishlist.wishlist : [],
     getCompare: state => state.compare,
-    wishlistItemCount: state => state.wishlist.wishlist.length,
-    compareItemCount: state => state.compare.length,
-    getTotal: (state, getters) => getters['cart/getTotal'],
+    wishlistItemCount: state => (state.wishlist && state.wishlist.wishlist) ? state.wishlist.wishlist.length : 0,
+    compareItemCount: state => (state.compare || []).length,
+    getTotal: (state, getters) => getters['cart/getTotal'] || 0,
 
-    categoryList: state => state.products.categories.map(c => c.name),
+    categoryList: state => (state.products.categories || []).map(c => typeof c === 'string' ? c : (c.name || c.title || 'Category')),
 }
 
 export const mutations = {
