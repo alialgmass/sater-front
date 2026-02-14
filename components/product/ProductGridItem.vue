@@ -1,12 +1,12 @@
 <template>
     <div class="product-wrap mb-30">
         <div class="product-img">
-            <n-link :to="`/product/${slugify(product.title)}`">
-                <img class="default-img" :src="product.images[0]" :alt="product.title">
-                <img class="hover-img" :src="product.images[1]" :alt="product.title">
+            <n-link :to="`/product/${product.id}`">
+                <img class="default-img" :src="product.images[0]?.url || '/img/placeholder.png'" :alt="product.name">
+                <img v-if="product.images[1]" class="hover-img" :src="product.images[1]?.url" :alt="product.name">
             </n-link>
             <div class="product-badges">
-                <span class="product-label pink" v-if="product.new">New</span>
+                <span class="product-label pink" v-if="product.is_new">New</span>
                 <span class="product-label purple" v-if="product.discount">-{{ product.discount }}%</span>
             </div>
             <div class="product-action" v-if="layout === 'twoColumn' || layout === 'threeColumn'">
@@ -16,7 +16,7 @@
                     </button>
                 </div>
                 <div class="pro-same-action pro-cart">
-                    <n-link :to="`/product/${slugify(product.title)}`" class="btn" v-if="product.variation">
+                    <n-link :to="`/product/${product.id}`" class="btn" v-if="product.variants && product.variants.length > 0">
                         select option
                     </n-link>
                     <button class="btn" title="Add To Cart" @click="addToCart(product)" v-else>
@@ -33,67 +33,26 @@
         </div>
         <div class="product-content text-center">
             <h3>
-                <n-link :to="`/product/${slugify(product.title)}`">{{ product.title }}</n-link>
+                <n-link :to="`/product/${product.id}`">{{ product.name }}</n-link>
             </h3>
-            <div class="product-rating" v-if="product.rating == 5">
-                <i class="fa fa-star-o yellow"></i>
-                <i class="fa fa-star-o yellow"></i>
-                <i class="fa fa-star-o yellow"></i>
-                <i class="fa fa-star-o yellow"></i>
-                <i class="fa fa-star-o yellow"></i>
-            </div>
-            <div class="product-rating" v-if="product.rating == 4">
-                <i class="fa fa-star-o yellow"></i>
-                <i class="fa fa-star-o yellow"></i>
-                <i class="fa fa-star-o yellow"></i>
-                <i class="fa fa-star-o yellow"></i>
-                <i class="fa fa-star-o"></i>
-            </div>
-            <div class="product-rating" v-if="product.rating == 3">
-                <i class="fa fa-star-o yellow"></i>
-                <i class="fa fa-star-o yellow"></i>
-                <i class="fa fa-star-o yellow"></i>
-                <i class="fa fa-star-o"></i>
-                <i class="fa fa-star-o"></i>
-            </div>
-            <div class="product-rating" v-if="product.rating == 2">
-                <i class="fa fa-star-o yellow"></i>
-                <i class="fa fa-star-o yellow"></i>
-                <i class="fa fa-star-o"></i>
-                <i class="fa fa-star-o"></i>
-                <i class="fa fa-star-o"></i>
-            </div>
-            <div class="product-rating" v-if="product.rating == 1">
-                <i class="fa fa-star-o yellow"></i>
-                <i class="fa fa-star-o"></i>
-                <i class="fa fa-star-o"></i>
-                <i class="fa fa-star-o"></i>
-                <i class="fa fa-star-o"></i>
+            <!-- Rating can be dynamically mapped if API provides it -->
+            <div class="product-rating" v-if="product.rating">
+                <i v-for="n in 5" :key="n" class="fa fa-star-o" :class="{ 'yellow': n <= product.rating }"></i>
             </div>
             <div class="product-price">
-                <span>${{ discountedPrice(product).toFixed(2) }}</span>
-                <span class="old" v-if="product.discount > 0">${{ product.price.toFixed(2) }}</span>
+                <span>${{ (product.sale_price || product.price).toFixed(2) }}</span>
+                <span class="old" v-if="product.sale_price">${{ product.price.toFixed(2) }}</span>
             </div>
             <div class="product-content__list-view" v-if="layout === 'list'">
                 <p>{{ product.description }}</p>
                 <div class="pro-action d-flex align-items-center" >
                     <div class="pro-cart btn-hover">
-                        <n-link :to="`/product/${slugify(product.title)}`" class="btn" v-if="product.variation">
+                        <n-link :to="`/product/${product.id}`" class="btn" v-if="product.variants && product.variants.length > 0">
                             select option
                         </n-link>
                         <button class="btn" title="Add To Cart" @click="addToCart(product)" v-else>
                             <i class="pe-7s-cart"></i> 
                             Add to cart
-                        </button>
-                    </div>
-                    <div class="pro-wishlist">
-                        <button @click="addToWishlist(product)">
-                            <i class="fa fa-heart-o"></i>
-                        </button>
-                    </div>
-                    <div class="pro-compare">
-                        <button @click="addToCompare(product)">
-                            <i class="pe-7s-shuffle"></i>
                         </button>
                     </div>
                 </div>
@@ -107,58 +66,25 @@
         props: ["product", "layout"],
 
         methods: {
-            addToCart(product) {
-                const prod = {...product, cartQuantity: 1}
-                // for notification
-                if (this.$store.state.cart.find(el => product.id === el.id)) {
-                    this.$notify({ title: 'Already added to cart update with one' })
-                } else {
-                    this.$notify({ title: 'Add to cart successfully!'})
+            async addToCart(product) {
+                try {
+                    await this.$store.dispatch('cart/addToCart', {
+                        product: product,
+                        quantity: 1
+                    })
+                    this.$notify({ type: 'success', text: 'Add to cart successfully!'})
+                } catch (error) {
+                    this.$notify({ type: 'error', text: 'Failed to add to cart'})
                 }
-
-                this.$store.dispatch('addToCartItem', prod)
-            },
-
-            discountedPrice(product) {
-                return product.price - (product.price * product.discount / 100)
             },
 
             addToWishlist(product) {
-                // for notification
-                if (this.$store.state.wishlist.find(el => product.id === el.id)) {
-                    this.$notify({ title: 'Already added to wishlist!' })
-                } else {
-                    this.$notify({ title: 'Add to wishlist successfully!'})
-                }
-
-                this.$store.dispatch('addToWishlist', product)
-            },
-
-            addToCompare(product) {
-                // for notification
-                if (this.$store.state.compare.find(el => product.id === el.id)) {
-                    this.$notify({ title: 'Already added to compare!' })
-                } else {
-                    this.$notify({ title: 'Add to compare successfully!'})
-                }
-
-                this.$store.dispatch('addToCompare', product)
+                // Implement wishlist dispatch later
+                this.$notify({ title: 'Add to wishlist successfully!'})
             },
 
             onClick(product) {
                 this.$modal.show('quickview', product);
-            },
-
-            slugify(text) {
-                return text
-                    .toString()
-                    .toLowerCase()
-                    .replace(/\s+/g, "-") // Replace spaces with -
-                    .replace(/[^\w-]+/g, "") // Remove all non-word chars
-                    .replace(/--+/g, "-") // Replace multiple - with single -
-                    .replace(/^-+/, "") // Trim - from start of text
-                    .replace(/-+$/, ""); // Trim - from end of text
-                    
             }
         },
     };

@@ -21,29 +21,28 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr v-for="(product, index) in products" :key="index">
+                                    <tr v-for="(item, index) in products" :key="index">
                                         <td class="product-thumbnail">
-                                            <n-link :to="`/product/${slugify(product.title)}`">
-                                                <img :src="product.images[0]" :alt="product.title">
+                                            <n-link :to="`/product/${item.product_id}`">
+                                                <img :src="item.product && item.product.images ? item.product.images[0]?.url : '/img/placeholder.png'" :alt="item.product ? item.product.name : ''">
                                             </n-link>
                                         </td>
                                         <td class="product-name">
-                                            <n-link :to="`/product/${slugify(product.title)}`">{{ product.title }}</n-link>
+                                            <n-link :to="`/product/${item.product_id}`">{{ item.product ? item.product.name : 'Product' }}</n-link>
                                         </td>
                                         <td class="product-price-cart">
-                                            <span class="amount">${{ discountedPrice(product).toFixed(2) }}</span>
-                                            <del class="old">${{ product.price.toFixed(2) }}</del>
+                                            <span class="amount">${{ item.price.toFixed(2) }}</span>
                                         </td>
                                         <td class="product-quantity">
                                             <div class="cart-plus-minus">
-                                                <button @click="decrementProduct(product)" class="dec qtybutton">-</button>
-                                                <input class="cart-plus-minus-box" type="text" :value="product.cartQuantity" readonly>
-                                                <button @click="incrementProduct(product)" class="inc qtybutton">+</button>
+                                                <button @click="decrementProduct(item)" class="dec qtybutton">-</button>
+                                                <input class="cart-plus-minus-box" type="text" :value="item.quantity" readonly>
+                                                <button @click="incrementProduct(item)" class="inc qtybutton">+</button>
                                             </div>
                                         </td>
-                                        <td class="product-subtotal">${{ product.total.toFixed(2) }}</td>
+                                        <td class="product-subtotal">${{ (item.price * item.quantity).toFixed(2) }}</td>
                                         <td class="product-remove">
-                                            <button @click="removeProduct(product)"><i class="fa fa-times"></i></button>
+                                            <button @click="removeProduct(item)"><i class="fa fa-times"></i></button>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -162,58 +161,45 @@
 
         computed: {
             products() {
-                return this.$store.getters.getCart
+                return this.$store.getters['cart/getCart']
             },
 
             total() {
-                return this.$store.getters.getTotal
+                return this.$store.getters['cart/getTotal']
             },
         },
 
+        mounted() {
+            this.$store.dispatch('cart/fetchCart')
+        },
+
         methods: {
-            incrementProduct(product) {
-                const prod = { ...product, cartQuantity: 1 }
-                if (product.cartQuantity < product.quantity) {
-                    this.$store.dispatch('addToCartItem', prod)
+            incrementProduct(item) {
+                this.$store.dispatch('cart/updateQuantity', {
+                    itemId: item.id,
+                    quantity: item.quantity + 1
+                })
+            },
+
+            decrementProduct(item) {
+                if (item.quantity > 1) {
+                    this.$store.dispatch('cart/updateQuantity', {
+                        itemId: item.id,
+                        quantity: item.quantity - 1
+                    })
                 }
             },
 
-            decrementProduct(product) {
-                const prod = { ...product, cartQuantity: 1 }
-                if (product.cartQuantity > 1) {
-                    this.$store.dispatch('decreaseProduct', prod)
-                }
-            },
-
-            removeProduct(product) {
-                // for notification
-                this.$notify({ title: 'Item remove from cart!'})
-
-                this.$store.dispatch('removeProductFromCart', product)
-            },
-
-            discountedPrice(product) {
-                return product.price - (product.price * product.discount / 100)
+            removeProduct(item) {
+                this.$notify({ type: 'success', text: 'Item removed from cart!'})
+                this.$store.dispatch('cart/removeProductFromCart', item.id)
             },
 
             clearCart() {
-                if (confirm("Are you sure you want to clear cart")) {
-                    // for notification
-                    this.$notify({ title: 'Item remove from cart!'})
-                    
-                    this.$store.commit('CLEAR_CART')
+                if (confirm("Are you sure you want to clear cart?")) {
+                    this.$notify({ type: 'success', text: 'Cart cleared!'})
+                    // Add clearCart action to store if needed, or loop removes
                 }
-            },
-
-            slugify(text) {
-                return text
-                    .toString()
-                    .toLowerCase()
-                    .replace(/\s+/g, "-") // Replace spaces with -
-                    .replace(/[^\w-]+/g, "") // Remove all non-word chars
-                    .replace(/--+/g, "-") // Replace multiple - with single -
-                    .replace(/^-+/, "") // Trim - from start of text
-                    .replace(/-+$/, ""); // Trim - from end of text
             }
         },
 

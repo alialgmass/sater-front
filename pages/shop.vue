@@ -88,89 +88,37 @@
 
         computed: {
             products() {
-                return this.$store.getters.getProducts
+                return this.$store.state.products.products
             },
 
             getItems() {
-                let start = (this.currentPage - 1) * this.perPage;
-                let end = this.currentPage * this.perPage;
-                return this.filterItems.slice(start, end);
+                return this.products;
             },
             getPaginateCount() {
-                return Math.ceil(this.filterItems.length / this.perPage);
+                return this.$store.state.products.pagination ? this.$store.state.products.pagination.last_page : 1;
             },
         },
 
         mounted(){
-            this.updateProductData()
+            this.fetchProducts()
         },
 
         methods: {
+            async fetchProducts() {
+                const params = {
+                    page: this.currentPage,
+                    per_page: this.perPage,
+                    category: this.$route.query.category,
+                    sort: this.selectedPrice === 'low2high' ? 'price_asc' : (this.selectedPrice === 'high2low' ? 'price_desc' : null)
+                }
+                await this.$store.dispatch('products/fetchProducts', params)
+            },
+
             paginateClickCallback(page) {
                 this.currentPage = Number(page);
+                this.fetchProducts()
             },
-
-            updateProductData(){
-                this.paginateClickCallback(1);
-
-                const categoryName = this.$route.query.category;
-                const sizeName = this.$route.query.size;
-                const colorName = this.$route.query.color;
-                const tagName = this.$route.query.tag;
-                
-                if( Object.keys(this.$route.query).length === 0){
-                    this.filterItems = [...this.products]
-                }
-                
-                if(categoryName && this.prevSelectedCategoryName !== categoryName){
-                    if(Boolean(categoryName) === false || categoryName === this.slugify("all categories")){
-                        this.filterItems = [...this.products]
-                    }
-                    else {
-                        const resultData = this.products.filter((item) => this.slugify(item.category).includes(categoryName));
-                        this.filterItems = [];
-                        this.filterItems.push(...resultData);
-                    }
-                }
-        
-                if(colorName && this.prevSelectedColorName !== colorName){
-                    if(Boolean(colorName) === false || colorName === this.slugify("all colors")){
-                        this.filterItems = [...this.products]
-                    }
-                    else {
-                        const resultData = this.products.filter((item) => item.variation?.color.includes(colorName));
-                        this.filterItems = [];
-                        this.filterItems.push(...resultData);
-                    }
-                }
-
-                if(sizeName && this.prevSelectedSizeName !== sizeName){
-                    if(Boolean(sizeName) === false || sizeName === this.slugify("all sizes")){
-                        this.filterItems = [...this.products]
-                    }
-                    else {
-                        const resultData = this.products.filter((item) => item.variation?.sizes.includes(sizeName));
-                        this.filterItems = [];
-                        this.filterItems.push(...resultData);
-                    }
-                }
-            
-                if(tagName && this.prevSelectedTagName !== tagName){
-                    if(tagName){
-                        const resultData = this.products.filter((item) => this.slugify(item.tag).includes(tagName));
-                        this.filterItems = [];
-                        this.filterItems.push(...resultData);
-                    }
-                    else {
-                        this.filterItems = [...this.products]
-                    } 
-                }
-                
-                this.prevSelectedCategoryName = categoryName;
-                this.prevSelectedColorName = colorName;
-                this.prevSelectedSizeName = sizeName;
-                this.prevSelectedTagName = tagName;
-            },
+        },
 
             discountedPrice(product) {
                 return product.price - (product.price * product.discount / 100)

@@ -24,31 +24,31 @@
                                                     <div class="col-lg-6 col-md-6">
                                                         <div class="billing-info">
                                                             <label>First Name</label>
-                                                            <input type="text">
+                                                            <input type="text" v-model="profile.first_name">
                                                         </div>
                                                     </div>
                                                     <div class="col-lg-6 col-md-6">
                                                         <div class="billing-info">
                                                             <label>Last Name</label>
-                                                            <input type="text">
+                                                            <input type="text" v-model="profile.last_name">
                                                         </div>
                                                     </div>
                                                     <div class="col-lg-12 col-md-12">
                                                         <div class="billing-info">
                                                             <label>Email Address</label>
-                                                            <input type="email">
+                                                            <input type="email" v-model="profile.email" readonly>
                                                         </div>
                                                     </div>
                                                     <div class="col-lg-6 col-md-6">
                                                         <div class="billing-info">
                                                             <label>Telephone</label>
-                                                            <input type="text">
+                                                            <input type="text" v-model="profile.phone">
                                                         </div>
                                                     </div>
                                                     <div class="col-lg-6 col-md-6">
                                                         <div class="billing-info">
                                                             <label>Fax</label>
-                                                            <input type="text">
+                                                            <input type="text" v-model="profile.fax">
                                                         </div>
                                                     </div>
                                                 </div>
@@ -57,7 +57,9 @@
                                                         <a href="#"><i class="fa fa-arrow-up"></i> back</a>
                                                     </div>
                                                     <div class="billing-btn">
-                                                        <button type="submit">Continue</button>
+                                                        <button type="button" @click="updateProfile" :disabled="loading">
+                                                            {{ loading ? 'Updating...' : 'Continue' }}
+                                                        </button>
                                                     </div>
                                                 </div>
                                             </div>
@@ -79,13 +81,13 @@
                                                     <div class="col-lg-12 col-md-12">
                                                         <div class="billing-info">
                                                             <label>Password</label>
-                                                            <input type="password">
+                                                            <input type="password" v-model="password.new">
                                                         </div>
                                                     </div>
                                                     <div class="col-lg-12 col-md-12">
                                                         <div class="billing-info">
                                                             <label>Password Confirm</label>
-                                                            <input type="password">
+                                                            <input type="password" v-model="password.confirm">
                                                         </div>
                                                     </div>
                                                 </div>
@@ -94,7 +96,7 @@
                                                         <a href="#"><i class="fa fa-arrow-up"></i> back</a>
                                                     </div>
                                                     <div class="billing-btn">
-                                                        <button type="submit">Continue</button>
+                                                        <button type="button" @click="changePassword">Continue</button>
                                                     </div>
                                                 </div>
                                             </div>
@@ -156,6 +158,61 @@
             HeaderWithTopbar: () => import("@/components/HeaderWithTopbar"),
             Breadcrumb: () => import("@/components/Breadcrumb"),
             TheFooter: () => import("@/components/TheFooter"),
+        },
+        data() {
+            return {
+                profile: {
+                    first_name: '',
+                    last_name: '',
+                    email: '',
+                    phone: '',
+                    fax: ''
+                },
+                password: {
+                    current: '',
+                    new: '',
+                    confirm: ''
+                },
+                loading: false
+            }
+        },
+        computed: {
+            user() {
+                return this.$store.state.auth.user
+            }
+        },
+        watch: {
+            user: {
+                immediate: true,
+                handler(val) {
+                    if (val) {
+                        this.profile = {
+                            first_name: val.first_name || '',
+                            last_name: val.last_name || '',
+                            email: val.email || '',
+                            phone: val.phone || '',
+                            fax: val.fax || ''
+                        }
+                    }
+                }
+            }
+        },
+        methods: {
+            async updateProfile() {
+                this.loading = true
+                try {
+                    await this.$store.dispatch('auth/updateProfile', this.profile)
+                    this.$notify({ type: 'success', text: 'Profile updated successfully!'})
+                } catch (error) {
+                    this.$notify({ type: 'error', text: 'Failed to update profile'})
+                } finally {
+                    this.loading = false
+                }
+            },
+            async changePassword() {
+                // Implement change password logic if API supports it
+                this.$notify({ type: 'info', text: 'Password change functionality coming soon'})
+            }
         },
         head() {
             return {

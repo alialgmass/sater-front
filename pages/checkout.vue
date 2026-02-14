@@ -11,28 +11,28 @@
                         <div class="billing-info-wrap">
                             <h3>Billing Details</h3>
                             <div class="row">
-                                <div class="col-lg-6 col-md-6">
+                                 <div class="col-lg-6 col-md-6">
                                     <div class="billing-info mb-20">
                                         <label>First Name</label>
-                                        <input type="text">
+                                        <input type="text" v-model="form.first_name">
                                     </div>
                                 </div>
                                 <div class="col-lg-6 col-md-6">
                                     <div class="billing-info mb-20">
                                         <label>Last Name</label>
-                                        <input type="text">
+                                        <input type="text" v-model="form.last_name">
                                     </div>
                                 </div>
                                 <div class="col-lg-12">
                                     <div class="billing-info mb-20">
                                         <label>Company Name</label>
-                                        <input type="text">
+                                        <input type="text" v-model="form.company_name">
                                     </div>
                                 </div>
                                 <div class="col-lg-12">
                                     <div class="billing-select mb-20">
                                         <label>Country</label>
-                                        <select>
+                                        <select v-model="form.country">
                                             <option>Select a country</option>
                                             <option>Azerbaijan</option>
                                             <option>Bahamas</option>
@@ -45,38 +45,38 @@
                                 <div class="col-lg-12">
                                     <div class="billing-info mb-20">
                                         <label>Street Address</label>
-                                        <input class="billing-address" placeholder="House number and street name" type="text">
-                                        <input placeholder="Apartment, suite, unit etc." type="text">
+                                        <input class="billing-address" placeholder="House number and street name" type="text" v-model="form.street_address">
+                                        <input placeholder="Apartment, suite, unit etc." type="text" v-model="form.apartment">
                                     </div>
                                 </div>
                                 <div class="col-lg-12">
                                     <div class="billing-info mb-20">
                                         <label>Town / City</label>
-                                        <input type="text">
+                                        <input type="text" v-model="form.city">
                                     </div>
                                 </div>
                                 <div class="col-lg-6 col-md-6">
                                     <div class="billing-info mb-20">
                                         <label>State / County</label>
-                                        <input type="text">
+                                        <input type="text" v-model="form.state">
                                     </div>
                                 </div>
                                 <div class="col-lg-6 col-md-6">
                                     <div class="billing-info mb-20">
                                         <label>Postcode / ZIP</label>
-                                        <input type="text">
+                                        <input type="text" v-model="form.postcode">
                                     </div>
                                 </div>
                                 <div class="col-lg-6 col-md-6">
                                     <div class="billing-info mb-20">
                                         <label>Phone</label>
-                                        <input type="text">
+                                        <input type="text" v-model="form.phone">
                                     </div>
                                 </div>
                                 <div class="col-lg-6 col-md-6">
                                     <div class="billing-info mb-20">
                                         <label>Email Address</label>
-                                        <input type="text">
+                                        <input type="text" v-model="form.email">
                                     </div>
                                 </div>
                             </div>
@@ -84,7 +84,7 @@
                                 <h4>Additional information</h4>
                                 <div class="additional-info">
                                     <label>Order notes</label>
-                                    <textarea placeholder="Notes about your order, e.g. special notes for delivery. " name="message"></textarea>
+                                    <textarea placeholder="Notes about your order, e.g. special notes for delivery. " name="message" v-model="form.notes"></textarea>
                                 </div>
                             </div>
                         </div>
@@ -102,8 +102,8 @@
                                     </div>
                                     <div class="your-order-middle">
                                         <ul>
-                                            <li v-for="(product, index) in products" :key="index">
-                                                <span class="order-middle-left">{{ product.title }}  X  {{ product.cartQuantity }}</span> <span class="order-price">${{ product.total.toFixed(2) }}</span>
+                                            <li v-for="(item, index) in products" :key="index">
+                                                <span class="order-middle-left">{{ item.product ? item.product.name : 'Product' }}  X  {{ item.quantity }}</span> <span class="order-price">${{ (item.price * item.quantity).toFixed(2) }}</span>
                                             </li>
                                         </ul>
                                     </div>
@@ -122,7 +122,9 @@
                                 </div>
                             </div>
                             <div class="place-order mt-25">
-                                <button class="btn-hover">Place Order</button>
+                                <button class="btn-hover" @click="placeOrder" :disabled="loading">
+                                    {{ loading ? 'Placing Order...' : 'Place Order' }}
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -146,26 +148,58 @@
 </template>
 
 <script>
-    export default {
-        components: {
-            HeaderWithTopbar: () => import("@/components/HeaderWithTopbar"),
-            Breadcrumb: () => import("@/components/Breadcrumb"),
-            TheFooter: () => import("@/components/TheFooter"),
+        data() {
+            return {
+                form: {
+                    first_name: '',
+                    last_name: '',
+                    company_name: '',
+                    country: 'Azerbaijan',
+                    street_address: '',
+                    apartment: '',
+                    city: '',
+                    state: '',
+                    postcode: '',
+                    phone: '',
+                    email: '',
+                    notes: ''
+                },
+                loading: false
+            }
         },
+
         computed: {
             products() {
-                return this.$store.getters.getCart
+                return this.$store.getters['cart/getCart']
             },
 
             total() {
-                return this.$store.getters.getTotal
+                return this.$store.getters['cart/getTotal']
             },
         },
 
-        head() {
-            return {
-                title: "Checkout"
+        methods: {
+            async placeOrder() {
+                this.loading = true
+                try {
+                    const orderData = {
+                        billing_details: this.form,
+                        items: this.products.map(item => ({
+                            product_id: item.product_id,
+                            quantity: item.quantity,
+                            price: item.price
+                        })),
+                        total: this.total
+                    }
+                    const response = await this.$orderService.checkout(orderData)
+                    this.$notify({ type: 'success', text: 'Order placed successfully!'})
+                    this.$store.dispatch('cart/fetchCart') // Clear or refresh cart
+                    this.$router.push('/my-account')
+                } catch (error) {
+                    this.$notify({ type: 'error', text: 'Failed to place order'})
+                } finally {
+                    this.loading = false
+                }
             }
         },
-    };
 </script>

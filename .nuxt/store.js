@@ -20,7 +20,9 @@ let store = {};
   store.modules = store.modules || {}
 
   resolveStoreModules(require('..\\store\\auth.js'), 'auth.js')
+  resolveStoreModules(require('..\\store\\cart.js'), 'cart.js')
   resolveStoreModules(require('..\\store\\products.js'), 'products.js')
+  resolveStoreModules(require('..\\store\\wishlist.js'), 'wishlist.js')
 
   // If the environment supports hot reloading...
 
@@ -28,8 +30,10 @@ let store = {};
     // Whenever any Vuex module is updated...
     module.hot.accept([
       '..\\store\\auth.js',
+      '..\\store\\cart.js',
       '..\\store\\index.js',
       '..\\store\\products.js',
+      '..\\store\\wishlist.js',
     ], () => {
       // Update `root.modules` with the latest definitions.
       updateModules()
