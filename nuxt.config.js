@@ -37,17 +37,25 @@ export default {
         '~/plugins/vuejs-pagiante.js',
         '~/plugins/observe-visibility.js',
         '~/plugins/persistedState.client.js',
-        { 
-            src: '~/plugins/bootstrap.js', 
+        {
+            src: '~/plugins/bootstrap.js',
             mode: 'client'
         },
         {
-            src: '~/plugins/vue-js-modal', 
+            src: '~/plugins/vue-js-modal',
             mode: 'client'
         },
-        { 
-            src: '~/plugins/notifications-client.js', 
-            mode: 'client' 
+        {
+            src: '~/plugins/notifications-client.js',
+            mode: 'client'
+        },
+        {
+            src: '~/plugins/api.js',
+            mode: 'client'
+        },
+        {
+            src: '~/plugins/services.js',
+            mode: 'client'
         },
     ],
 
@@ -64,6 +72,10 @@ export default {
         '@nuxtjs/axios',
     ],
 
+    axios: {
+        baseURL: process.env.API_BASE_URL || 'http://localhost:8000/api'
+    },
+
     styleResources: {
         scss: [
             '~/assets/scss/_variables.scss',
@@ -73,7 +85,7 @@ export default {
     // Build Configuration (https://go.nuxtjs.dev/config-build)
     build: {
         extractCSS: true,
-        extend (config, ctx) {
+        extend(config, ctx) {
         },
         babel: {
             compact: true,
