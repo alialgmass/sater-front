@@ -33,9 +33,9 @@ export const mutations = {
 }
 
 export const getters = {
-    getNewProducts: state => state.products.filter(item => item.is_new) || [],
-    getBestProducts: state => state.products.filter(item => item.is_featured) || [],
-    getSaleProducts: state => state.products.filter(item => item.sale_price) || [],
+    getNewProducts: state => (state.products || []).filter(item => item.is_new || item.new) || [],
+    getBestProducts: state => (state.products || []).filter(item => item.is_featured || item.best) || [],
+    getSaleProducts: state => (state.products || []).filter(item => item.sale_price || (item.discount && item.discount > 0)) || [],
 }
 
 export const actions = {
@@ -43,8 +43,11 @@ export const actions = {
         commit('SET_LOADING', true)
         try {
             const response = await this.$productService.getProducts(params)
-            commit('SET_PRODUCTS', response.data)
-            commit('SET_PAGINATION', response.meta)
+            const products = response.data || response
+            commit('SET_PRODUCTS', Array.isArray(products) ? products : [])
+            if (response.meta) {
+                commit('SET_PAGINATION', response.meta)
+            }
         } catch (error) {
             commit('SET_ERROR', error.message)
         } finally {

@@ -2,11 +2,11 @@
     <div class="product-wrap mb-30">
         <div class="product-img">
             <n-link :to="`/product/${product.id}`">
-                <img class="default-img" :src="product.images[0]?.url || '/img/placeholder.png'" :alt="product.name">
-                <img v-if="product.images[1]" class="hover-img" :src="product.images[1]?.url" :alt="product.name">
+                <img class="default-img" :src="productImage" :alt="productName">
+                <img v-if="productHoverImage" class="hover-img" :src="productHoverImage" :alt="productName">
             </n-link>
             <div class="product-badges">
-                <span class="product-label pink" v-if="product.is_new">New</span>
+                <span class="product-label pink" v-if="product.is_new || product.new">New</span>
                 <span class="product-label purple" v-if="product.discount">-{{ product.discount }}%</span>
             </div>
             <div class="product-action" v-if="layout === 'twoColumn' || layout === 'threeColumn'">
@@ -33,7 +33,7 @@
         </div>
         <div class="product-content text-center">
             <h3>
-                <n-link :to="`/product/${product.id}`">{{ product.name }}</n-link>
+                <n-link :to="`/product/${product.id}`">{{ productName }}</n-link>
             </h3>
             <!-- Rating can be dynamically mapped if API provides it -->
             <div class="product-rating" v-if="product.rating">
@@ -41,7 +41,7 @@
             </div>
             <div class="product-price">
                 <span>${{ (product.sale_price || product.price).toFixed(2) }}</span>
-                <span class="old" v-if="product.sale_price">${{ product.price.toFixed(2) }}</span>
+                <span class="old" v-if="product.sale_price || (product.discount && product.discount > 0)">${{ product.price.toFixed(2) }}</span>
             </div>
             <div class="product-content__list-view" v-if="layout === 'list'">
                 <p>{{ product.description }}</p>
@@ -64,6 +64,22 @@
 <script>
     export default {
         props: ["product", "layout"],
+
+        computed: {
+            productName() {
+                return this.product.name || this.product.title || 'Product'
+            },
+            productImage() {
+                const img = this.product.images ? this.product.images[0] : null
+                if (!img) return '/img/product/fashion/1.jpg'
+                return typeof img === 'string' ? img : (img.url || '/img/product/fashion/1.jpg')
+            },
+            productHoverImage() {
+                const img = this.product.images ? this.product.images[1] : null
+                if (!img) return null
+                return typeof img === 'string' ? img : (img.url || null)
+            }
+        },
 
         methods: {
             async addToCart(product) {

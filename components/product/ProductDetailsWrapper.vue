@@ -6,12 +6,12 @@
                     <div class="product-details-slider">
                         <div class="product-details-img">
                             <div class="product-badges">
-                                <span class="product-label pink" v-if="product.new">New</span>
+                                <span class="product-label pink" v-if="product.new || product.is_new">New</span>
                                 <span class="product-label purple" v-if="product.discount">-{{ product.discount }}%</span>
                             </div>
                             <swiper :options="swiperOptionTop" ref="swiperTop">
                                 <div class="large-img swiper-slide" v-for="(image, index) in product.images" :key="index">
-                                    <img class="img-fluid" :src="image" :alt="product.title">
+                                    <img class="img-fluid" :src="typeof image === 'string' ? image : image.url" :alt="product.name || product.title">
                                 </div>
                                 <div class="quickview-nav swiper-button-prev">
                                     <i class="pe-7s-angle-left"></i>
@@ -22,7 +22,7 @@
                             </swiper>
                             <swiper class="mt-2" :options="swiperOptionThumbs" ref="swiperThumbs">
                                 <div class="thumb-img swiper-slide" v-for="(image, index) in product.images" :key="index">
-                                    <img class="img-fluid" :src="image" :alt="product.title">
+                                    <img class="img-fluid" :src="typeof image === 'string' ? image : image.url" :alt="product.name || product.title">
                                 </div>
                             </swiper>
                         </div>
@@ -30,7 +30,7 @@
                 </div>
                 <div class="col-lg-6 col-md-6">
                     <div class="product-details-content ml-70">
-                        <h2>{{ product.title }}</h2>
+                        <h2>{{ product.name || product.title }}</h2>
                         <div class="product-details-price">
                             <span>${{ discountedPrice(product).toFixed(2) }}</span>
                             <span class="old" v-if="product.discount > 0">${{ product.price.toFixed(2) }}</span>
