@@ -65,7 +65,7 @@
                             <n-link to="/shop">Categories</n-link>
                         </li>
                         <li v-for="(category, index) in categories" :key="index">
-                            <n-link :to="`/shop?category=${category}`">{{ category }}</n-link>
+                            <n-link :to="`/shop?category=${category.slug || category}`">{{ category.name || category }}</n-link>
                         </li>
                     </ul>
                 </li>

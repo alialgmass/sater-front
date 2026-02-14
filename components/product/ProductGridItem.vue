@@ -40,8 +40,8 @@
                 <i v-for="n in 5" :key="n" class="fa fa-star-o" :class="{ 'yellow': n <= product.rating }"></i>
             </div>
             <div class="product-price">
-                <span>${{ (product.sale_price || product.price).toFixed(2) }}</span>
-                <span class="old" v-if="product.sale_price || (product.discount && product.discount > 0)">${{ product.price.toFixed(2) }}</span>
+                <span>${{ parseFloat(discountedPrice || product.price || 0).toFixed(2) }}</span>
+                <span class="old" v-if="discountedPrice">${{ parseFloat(product.price || 0).toFixed(2) }}</span>
             </div>
             <div class="product-content__list-view" v-if="layout === 'list'">
                 <p>{{ product.description }}</p>
@@ -70,6 +70,9 @@
                 return this.product.name || this.product.title || 'Product'
             },
             productImage() {
+                // Try main_image first
+                if (this.product.main_image) return this.product.main_image
+
                 const img = this.product.images ? this.product.images[0] : null
                 if (!img) return '/img/product/fashion/1.jpg'
                 return typeof img === 'string' ? img : (img.url || '/img/product/fashion/1.jpg')
@@ -78,6 +81,9 @@
                 const img = this.product.images ? this.product.images[1] : null
                 if (!img) return null
                 return typeof img === 'string' ? img : (img.url || null)
+            },
+            discountedPrice() {
+                return this.product.discounted_price || this.product.sale_price || null
             }
         },
 

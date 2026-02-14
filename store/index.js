@@ -22,7 +22,7 @@ export const getters = {
     compareItemCount: state => (state.compare || []).length,
     getTotal: (state, getters) => getters['cart/getTotal'] || 0,
 
-    categoryList: state => (state.products.categories || []).map(c => typeof c === 'string' ? c : (c.name || c.title || 'Category')),
+    categoryList: state => state.products.categories || [],
 }
 
 export const mutations = {

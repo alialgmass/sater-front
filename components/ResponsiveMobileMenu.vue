@@ -28,7 +28,14 @@
     export default {
         data() {
             return {
-                menus: [
+            }
+        },
+        computed: {
+            categories() {
+                return this.$store.getters.categoryList
+            },
+            menus() {
+                return [
                     {
                         url: '/',
                         title: 'Home',
@@ -98,38 +105,12 @@
                         title: 'Shop',
                         submenu: [
                             {
-                                url: '',
-                                title: 'shop layout',
-                                submenu: [
-                                    {
-                                        url: '/shop',
-                                        title: 'shop grid standard',
-                                    },
-                                    {
-                                        url: '/shop-grid-two-column',
-                                        title: 'shop grid two column',
-                                    },
-                                    {
-                                        url: '/shop-grid-no-sidebar',
-                                        title: 'shop grid no sidebar',
-                                    },
-                                    {
-                                        url: '/shop-grid-full-width',
-                                        title: 'shop grid full width',
-                                    },
-                                    {
-                                        url: '/shop-grid-right-sidebar',
-                                        title: 'shop grid right sidebar',
-                                    },
-                                    {
-                                        url: '/shop-list-standard',
-                                        title: 'shop list standard',
-                                    },
-                                    {
-                                        url: '/shop-list-full-width',
-                                        title: 'shop list full width',
-                                    },
-                                ]
+                                url: '/shop',
+                                title: 'Categories',
+                                submenu: this.categories.map(category => ({
+                                    url: `/shop?category=${category.slug || category}`,
+                                    title: category.name || category
+                                }))
                             },
                             {
                                 url: '',

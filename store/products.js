@@ -43,10 +43,22 @@ export const actions = {
         commit('SET_LOADING', true)
         try {
             const response = await this.$productService.getProducts(params)
-            const products = response.data || response
+
+            // Handle deeply nested structure: response.body.products.data
+            let products = []
+            let meta = null
+
+            if (response.body && response.body.products) {
+                products = response.body.products.data || []
+                meta = response.body.products.paginate || null
+            } else {
+                products = response.data || response
+                meta = response.meta || null
+            }
+
             commit('SET_PRODUCTS', Array.isArray(products) ? products : [])
-            if (response.meta) {
-                commit('SET_PAGINATION', response.meta)
+            if (meta) {
+                commit('SET_PAGINATION', meta)
             }
         } catch (error) {
             commit('SET_ERROR', error.message)
@@ -58,7 +70,8 @@ export const actions = {
     async fetchProduct({ commit }, id) {
         commit('SET_LOADING', true)
         try {
-            const product = await this.$productService.getProduct(id)
+            const response = await this.$productService.getProduct(id)
+            const product = (response.body && response.body.product) ? response.body.product : (response.body || response.data || response)
             commit('SET_PRODUCT', product)
         } catch (error) {
             commit('SET_ERROR', error.message)

@@ -32,8 +32,8 @@
                     <div class="product-details-content ml-70">
                         <h2>{{ product.name || product.title }}</h2>
                         <div class="product-details-price">
-                            <span>${{ discountedPrice(product).toFixed(2) }}</span>
-                            <span class="old" v-if="product.discount > 0">${{ product.price.toFixed(2) }}</span>
+                            <span>${{ parseFloat(getDiscountedPrice).toFixed(2) }}</span>
+                            <span class="old" v-if="hasDiscount">${{ parseFloat(product.price || 0).toFixed(2) }}</span>
                         </div>
                         <div class="pro-details-rating-wrap">
                             <div class="pro-details-rating" v-if="product.rating == 5">
@@ -112,9 +112,14 @@
                         </div>
                         <div class="pro-details-meta">
                             <span class="label">Categories:</span>
-                            <ul>
-                                <li v-for="(category, index) in product.category" :key="index">
-                                    <n-link :to="`/shop?category=${slugify(category)}`">{{ category }},</n-link>
+                            <ul v-if="product.category">
+                                <li>
+                                    <n-link :to="`/shop?category=${product.category.slug || product.category.id}`">{{ product.category.name || product.category.title || 'Category' }}</n-link>
+                                </li>
+                            </ul>
+                            <ul v-else-if="product.categories">
+                                <li v-for="(category, index) in product.categories" :key="index">
+                                    <n-link :to="`/shop?category=${category.slug || category.id || category}`">{{ category.name || category.title || category }}</n-link>
                                 </li>
                             </ul>
                         </div>
@@ -165,6 +170,15 @@
 <script>
     export default {
         props: ['product'],
+
+        computed: {
+            getDiscountedPrice() {
+                return this.product.discounted_price || this.product.sale_price || this.product.price || 0
+            },
+            hasDiscount() {
+                return !!(this.product.discounted_price || this.product.sale_price || (this.product.discount && this.product.discount > 0))
+            }
+        },
 
         data() {
             return {
@@ -218,7 +232,7 @@
             },
 
             discountedPrice(product) {
-                return product.price - (product.price * product.discount / 100)
+                return product.discounted_price || product.sale_price || (product.price - (product.price * (product.discount || 0) / 100))
             },
 
             increaseQuantity(){

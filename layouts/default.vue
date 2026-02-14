@@ -29,6 +29,7 @@
             },
         },
         mounted() {
+            this.$store.dispatch('products/fetchCategories')
             window.addEventListener("scroll", () => {
                 let scroll = window.scrollY;
                 if (scroll >= 500) {
