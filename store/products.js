@@ -33,9 +33,22 @@ export const mutations = {
 }
 
 export const getters = {
-    getNewProducts: state => (state.products || []).filter(item => item.is_new || item.new) || [],
-    getBestProducts: state => (state.products || []).filter(item => item.is_featured || item.best) || [],
-    getSaleProducts: state => (state.products || []).filter(item => item.sale_price || (item.discount && item.discount > 0)) || [],
+    getNewProducts: state => {
+        const products = state.products || []
+        const filtered = products.filter(item => item.is_new || item.new)
+        // If no products have the 'new' flag, just return the first few as a fallback
+        return filtered.length > 0 ? filtered : products.slice(0, 8)
+    },
+    getBestProducts: state => {
+        const products = state.products || []
+        const filtered = products.filter(item => item.is_featured || item.best)
+        // If no products have the 'featured' flag, return the products slice
+        return filtered.length > 0 ? filtered : products.slice(0, 8)
+    },
+    getSaleProducts: state => {
+        const products = state.products || []
+        return products.filter(item => item.discounted_price || item.sale_price || (item.discount && item.discount > 0))
+    },
 }
 
 export const actions = {
