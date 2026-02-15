@@ -43,11 +43,13 @@ export const actions = {
         try {
             const response = await this.$authService.login(email, password)
 
-            const token = response.token || response.access_token
-            const user = response.customer || response.user || (response.email ? response : null) || response
+            const authData = response.auth || response
+            const token = authData.token || authData.access_token
+            const user = authData.customer || authData.user || (authData.email ? authData : null) || authData
 
             if (token) {
                 localStorage.setItem('auth_token', token)
+                this.$axios.setToken(token, 'Bearer')
                 commit('SET_TOKEN', token)
             }
             if (user) {
@@ -68,11 +70,15 @@ export const actions = {
         commit('SET_LOADING', true)
         commit('SET_ERROR', null)
         try {
-            const token = response.token || response.access_token
-            const user = response.customer || response.user || (response.email ? response : null) || response
+            const response = await this.$authService.register(userData)
+
+            const authData = response.auth || response
+            const token = authData.token || authData.access_token
+            const user = authData.customer || authData.user || (authData.email ? authData : null) || authData
 
             if (token) {
                 localStorage.setItem('auth_token', token)
+                this.$axios.setToken(token, 'Bearer')
                 commit('SET_TOKEN', token)
             }
             if (user) {

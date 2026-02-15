@@ -19,17 +19,23 @@ export default function ({ $axios, redirect, store }) {
 
     // Response interceptor
     $axios.onResponse(response => {
-        // Handle application-level errors (status: false)
-        if (response.data && response.data.status === false) {
-            const error = new Error(response.data.message || 'API Error')
-            error.response = response
-            return Promise.reject(error)
+        const data = response.data
+
+        // If it's the unified structure
+        if (data && typeof data === 'object' && 'status' in data && 'custom_code' in data) {
+            // Handle as error only if status is false AND it's not a success code (like 2000)
+            if (data.status === false && data.custom_code !== 2000) {
+                const error = new Error(data.message || 'API Error')
+                error.response = response
+                return Promise.reject(error)
+            }
+
+            // Unwrap body if it exists
+            if (data.body) {
+                response.data = data.body
+            }
         }
 
-        // If the structured response is present, unwrap the body into response.data
-        if (response.data && response.data.status === true && response.data.body) {
-            response.data = response.data.body
-        }
         return response
     })
 

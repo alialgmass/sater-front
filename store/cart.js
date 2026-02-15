@@ -25,7 +25,8 @@ export const actions = {
         commit('SET_LOADING', true)
         try {
             const response = await this.$cartService.getCart()
-            const items = response.items || response.cart?.items || response
+            // Interceptor unwraps body. Look for items in known keys.
+            const items = response.items || (response.cart && response.cart.items) || response.data || (Array.isArray(response) ? response : [])
             commit('SET_CART', Array.isArray(items) ? items : [])
 
             // Also update cart key if returned in get cart
