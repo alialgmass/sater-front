@@ -14,6 +14,10 @@ export default function ({ $axios, redirect, store }) {
         if (cartKey) {
             config.headers.common['X-Cart-Key'] = cartKey
         }
+
+        // Set Accept-Language header from i18n
+        config.headers.common['Accept-Language'] = store.$i18n.locale
+
         return config
     })
 
