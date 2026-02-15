@@ -340,7 +340,7 @@
             async fetchOrders() {
                 try {
                     const response = await this.$orderService.getOrders()
-                    this.orders = response.data || response // Adjust based on API response structure
+                    this.orders = response.orders || response.data || (Array.isArray(response) ? response : [])
                 } catch (error) {
                     console.error('Failed to fetch orders', error)
                 }
@@ -349,7 +349,7 @@
                 this.loading = true
                 try {
                     const response = await this.$orderService.getOrder(orderId)
-                    this.selectedOrder = response.data || response
+                    this.selectedOrder = response.order || response.data || response
                 } catch (error) {
                     console.error('Failed to fetch order details', error)
                     this.$notify({ type: 'error', text: 'Failed to LOAD order details' })

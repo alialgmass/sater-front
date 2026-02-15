@@ -23,6 +23,9 @@ export const getters = {
     getTotal: (state, getters) => getters['cart/getTotal'] || 0,
 
     categoryList: state => state.products.categories || [],
+    colorList: (state, getters) => getters['products/getColors'] || [],
+    sizeList: (state, getters) => getters['products/getSizes'] || [],
+    tagList: (state, getters) => getters['products/getTags'] || [],
 }
 
 export const mutations = {

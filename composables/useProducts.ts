@@ -1,5 +1,23 @@
 import { getApiBaseUrl, getAuthHeaders, handleApiError } from './api/helpers'
 
+export interface Color {
+  id: number
+  name: string
+  hex_code: string
+}
+
+export interface Size {
+  id: number
+  name: string
+  abbreviation: string
+}
+
+export interface Tag {
+  id: number
+  name: string
+  slug: string
+}
+
 // Define product type
 export interface Product {
   id: number
@@ -23,6 +41,9 @@ export interface Product {
     height: number
   }
   attributes?: Record<string, any>
+  colors?: Color[]
+  sizes?: Size[]
+  tags?: Tag[]
   rating: number
   reviews_count: number
   created_at: string
@@ -33,6 +54,9 @@ export interface Product {
 export interface ProductFilters {
   category?: number | string
   brand?: number | string
+  color_id?: number | string
+  size_id?: number | string
+  tag_id?: number | string
   min_price?: number
   max_price?: number
   in_stock?: boolean
@@ -75,7 +99,7 @@ export const useProducts = () => {
   const getProducts = async (filters?: ProductFilters): Promise<ProductResponse> => {
     try {
       const params = new URLSearchParams()
-      
+
       if (filters) {
         Object.entries(filters).forEach(([key, value]) => {
           if (value !== undefined && value !== null) {
@@ -190,7 +214,7 @@ export const useProducts = () => {
   ): Promise<ProductResponse> => {
     try {
       const params = new URLSearchParams()
-      
+
       if (filters) {
         Object.entries(filters).forEach(([key, value]) => {
           if (value !== undefined && value !== null) {
@@ -200,9 +224,8 @@ export const useProducts = () => {
       }
 
       const queryString = params.toString()
-      const url = `${baseUrl}/api/categories/${categoryId}/products${
-        queryString ? '?' + queryString : ''
-      }`
+      const url = `${baseUrl}/api/categories/${categoryId}/products${queryString ? '?' + queryString : ''
+        }`
 
       const response = await $fetch<ProductResponse>(url, {
         headers: getAuthHeaders(),

@@ -10,6 +10,9 @@
         "generate": "nuxt generate"
     },
     "dependencies": {
+        "vue": "2.7.16",
+        "vue-server-renderer": "2.7.16",
+        "vue-template-compiler": "2.7.16",
         "@nuxtjs/axios": "^5.13.6",
         "@nuxtjs/i18n": "^7.3.0",
         "@nuxtjs/style-resources": "^1.2.1",

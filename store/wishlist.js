@@ -17,8 +17,7 @@ export const actions = {
         commit('SET_LOADING', true)
         try {
             const response = await this.$wishlistService.getWishlist()
-            const data = response.body || response.data || response
-            const items = data.items || data.wishlist?.data || data.wishlist || data
+            const items = response.items || response.wishlist?.data || response.wishlist || response
             commit('SET_WISHLIST', Array.isArray(items) ? items : [])
         } catch (error) {
             console.error('Fetch wishlist failed', error)

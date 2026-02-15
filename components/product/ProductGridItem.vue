@@ -16,7 +16,7 @@
                     </button>
                 </div>
                 <div class="pro-same-action pro-cart">
-                    <n-link :to="localePath(`/product/${product.id}`)" class="btn" v-if="product.variants && product.variants.length > 0">
+                    <n-link :to="localePath(`/product/${product.id}`)" class="btn" v-if="(product.colors && product.colors.length > 0) || (product.sizes && product.sizes.length > 0)">
                         {{ $t('select_option') }}
                     </n-link>
                     <button class="btn" :title="$t('add_to_cart')" @click="addToCart(product)" v-else>
@@ -47,7 +47,7 @@
                 <p>{{ product.description }}</p>
                 <div class="pro-action d-flex align-items-center" >
                     <div class="pro-cart btn-hover">
-                        <n-link :to="localePath(`/product/${product.id}`)" class="btn" v-if="product.variants && product.variants.length > 0">
+                        <n-link :to="localePath(`/product/${product.id}`)" class="btn" v-if="(product.colors && product.colors.length > 0) || (product.sizes && product.sizes.length > 0)">
                             {{ $t('select_option') }}
                         </n-link>
                         <button class="btn" :title="$t('add_to_cart')" @click="addToCart(product)" v-else>

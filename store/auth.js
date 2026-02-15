@@ -43,22 +43,16 @@ export const actions = {
         try {
             const response = await this.$authService.login(email, password)
 
-            // Handle deeply nested structure: response.data.customer and response.data.token
-            const res = response.data || response.body || response
-            const token = res.token
-            const user = res.customer || res.user || res
+            const token = response.token || response.access_token
+            const user = response.customer || response.user || (response.email ? response : null) || response
 
             if (token) {
                 localStorage.setItem('auth_token', token)
                 commit('SET_TOKEN', token)
             }
-            if (user && user !== res) {
+            if (user) {
                 localStorage.setItem('user', JSON.stringify(user))
                 commit('SET_USER', user)
-            } else if (res && !res.token) {
-                // If res itself is the user (e.g. no token returned)
-                localStorage.setItem('user', JSON.stringify(res))
-                commit('SET_USER', res)
             }
 
             return response
@@ -74,23 +68,16 @@ export const actions = {
         commit('SET_LOADING', true)
         commit('SET_ERROR', null)
         try {
-            const response = await this.$authService.register(userData)
-
-            // Handle deeply nested structure
-            const res = response.data || response.body || response
-            const token = res.token
-            const user = res.customer || res.user || res
+            const token = response.token || response.access_token
+            const user = response.customer || response.user || (response.email ? response : null) || response
 
             if (token) {
                 localStorage.setItem('auth_token', token)
                 commit('SET_TOKEN', token)
             }
-            if (user && user !== res) {
+            if (user) {
                 localStorage.setItem('user', JSON.stringify(user))
                 commit('SET_USER', user)
-            } else if (res && !res.token) {
-                localStorage.setItem('user', JSON.stringify(res))
-                commit('SET_USER', res)
             }
 
             return response
@@ -106,8 +93,7 @@ export const actions = {
         commit('SET_LOADING', true)
         try {
             const response = await this.$authService.getProfile()
-            const res = response.data || response.body || response
-            const user = res.customer || res.user || res
+            const user = response.customer || response.user || response
 
             commit('SET_USER', user)
             localStorage.setItem('user', JSON.stringify(user))
@@ -124,8 +110,7 @@ export const actions = {
         commit('SET_ERROR', null)
         try {
             const response = await this.$authService.updateProfile(profileData)
-            const res = response.data || response.body || response
-            const user = res.customer || res.user || res
+            const user = response.customer || response.user || response
 
             commit('SET_USER', user)
             localStorage.setItem('user', JSON.stringify(user))

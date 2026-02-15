@@ -18,6 +18,18 @@ export default (context) => {
             return $axios.$get('/v1/categories')
         },
 
+        getColors() {
+            return $axios.$get('/v1/colors')
+        },
+
+        getSizes() {
+            return $axios.$get('/v1/sizes')
+        },
+
+        getTags() {
+            return $axios.$get('/v1/tags')
+        },
+
         getFeaturedProducts() {
             return $axios.$get('/products/featured')
         }

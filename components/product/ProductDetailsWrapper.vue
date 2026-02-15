@@ -74,22 +74,22 @@
                             <span><a href="#">{{ product.rating }} {{ $t('reviews') }}</a></span>
                         </div>
                         <p>{{ product.description }}</p>
-                        <div class="pro-details-size-color" v-if="product.variation">
-                            <div class="pro-details-color-wrap">
+                        <div class="pro-details-size-color" v-if="product.colors || product.sizes">
+                            <div class="pro-details-color-wrap" v-if="product.colors && product.colors.length > 0">
                                 <h6 class="label">{{ $t('color_label') }}</h6>
                                 <div class="pro-details-color-content">
-                                    <label :class="item" class="radio" v-for="(item, index) in product.variation.color" :key="index" >
-                                        <input type="radio" name="colorGroup"/>
-                                        <span class="check-mark"></span>
+                                    <label class="radio" v-for="(item, index) in product.colors" :key="index" :title="item.name">
+                                        <input type="radio" name="colorGroup" :value="item.id" v-model="selectedColor"/>
+                                        <span class="check-mark" :style="{ backgroundColor: item.hex_code }"></span>
                                     </label>
                                 </div>
                             </div>
-                            <div class="pro-details-size-wrap">
+                            <div class="pro-details-size-wrap" v-if="product.sizes && product.sizes.length > 0">
                                 <h6 class="label">{{ $t('size_label') }}</h6>
                                 <div class="pro-details-size-content">
-                                    <label class="radio" v-for="(item, index) in product.variation.sizes" :key="index">
-                                        <input type="radio" name="sizeGroup" />
-                                        <span class="check-mark">{{ item }}</span>
+                                    <label class="radio" v-for="(item, index) in product.sizes" :key="index">
+                                        <input type="radio" name="sizeGroup" :value="item.id" v-model="selectedSize" />
+                                        <span class="check-mark">{{ item.name }}</span>
                                     </label>
                                 </div>
                             </div>
@@ -125,9 +125,9 @@
                         </div>
                         <div class="pro-details-meta">
                             <span class="label">{{ $t('tag_label') }}</span>
-                            <ul>
-                                <li v-for="(tag, index) in product.tag" :key="index">
-                                    <n-link :to="localePath(`/shop?tag=${slugify(tag)}`)">{{ tag }},</n-link>
+                            <ul v-if="product.tags">
+                                <li v-for="(tag, index) in product.tags" :key="index">
+                                    <n-link :to="localePath(`/shop?tag=${tag.slug}`)">{{ tag.name }},</n-link>
                                 </li>
                             </ul>
                         </div>
@@ -183,6 +183,8 @@
         data() {
             return {
                 singleQuantity: 1,
+                selectedColor: null,
+                selectedSize: null,
 
                 swiperOptionTop: {
                     loop: true,
@@ -221,14 +223,39 @@
 
         methods: {
             addToCart(product) {
-                const prod = {...product, cartQuantity: this.singleQuantity}
+                if (product.colors && product.colors.length > 0 && !this.selectedColor) {
+                    this.$notify({ type: 'warning', title: this.$t('please_select_color') })
+                    return
+                }
+                if (product.sizes && product.sizes.length > 0 && !this.selectedSize) {
+                    this.$notify({ type: 'warning', title: this.$t('please_select_size') })
+                    return
+                }
+
+                const prod = {
+                    ...product, 
+                    cartQuantity: this.singleQuantity,
+                    selectedColor: this.selectedColor,
+                    selectedSize: this.selectedSize
+                }
+                
                 // for notification
-                if (this.$store.state.cart.find(el => product.id === el.id)) {
+                if (this.$store.state.cart.cart.find(el => 
+                    product.id === el.id && 
+                    this.selectedColor === el.selectedColor && 
+                    this.selectedSize === el.selectedSize
+                )) {
                     this.$notify({ title: this.$t('already_in_cart') })
                 } else {
                     this.$notify({ title: this.$t('add_to_cart_success') })
                 }
-                this.$store.dispatch('addToCartItem', prod)
+                
+                this.$store.dispatch('cart/addToCart', {
+                    product: product,
+                    quantity: this.singleQuantity,
+                    colorId: this.selectedColor,
+                    sizeId: this.selectedSize
+                })
             },
 
             discountedPrice(product) {

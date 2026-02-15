@@ -101,6 +101,8 @@
 
         mounted(){
             this.fetchProducts()
+            this.$store.dispatch('products/fetchAttributes')
+            this.$store.dispatch('products/fetchCategories')
         },
 
         methods: {
@@ -109,6 +111,9 @@
                     page: this.currentPage,
                     per_page: this.perPage,
                     category: this.$route.query.category,
+                    color_id: this.$route.query.color_id,
+                    size_id: this.$route.query.size_id,
+                    tag_id: this.$route.query.tag_id,
                     q: this.$route.query.q,
                     sort: this.selectedPrice === 'low2high' ? 'price_asc' : (this.selectedPrice === 'high2low' ? 'price_desc' : null)
                 }
@@ -138,7 +143,7 @@
 
         watch: {
             $route(){
-                this.updateProductData()
+                this.fetchProducts()
             },
 
             selectedPrice(){

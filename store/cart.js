@@ -25,8 +25,7 @@ export const actions = {
         commit('SET_LOADING', true)
         try {
             const response = await this.$cartService.getCart()
-            const data = response.body || response.data || response
-            const items = data.items || data.cart?.items || data
+            const items = response.items || response.cart?.items || response
             commit('SET_CART', Array.isArray(items) ? items : [])
 
             // Also update cart key if returned in get cart
@@ -41,9 +40,9 @@ export const actions = {
         }
     },
 
-    async addToCart({ commit, dispatch }, { product, quantity, variantId }) {
+    async addToCart({ commit, dispatch }, { product, quantity, colorId, sizeId }) {
         try {
-            const response = await this.$cartService.addToCart(product.id, quantity, variantId)
+            const response = await this.$cartService.addToCart(product.id, quantity, colorId, sizeId)
 
             if (response.cart_key) {
                 commit('SET_CART_KEY', response.cart_key)

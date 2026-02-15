@@ -18,6 +18,22 @@ export default function ({ $axios, redirect, store }) {
     })
 
     // Response interceptor
+    $axios.onResponse(response => {
+        // Handle application-level errors (status: false)
+        if (response.data && response.data.status === false) {
+            const error = new Error(response.data.message || 'API Error')
+            error.response = response
+            return Promise.reject(error)
+        }
+
+        // If the structured response is present, unwrap the body into response.data
+        if (response.data && response.data.status === true && response.data.body) {
+            response.data = response.data.body
+        }
+        return response
+    })
+
+    // Error interceptor
     $axios.onError(error => {
         const code = parseInt(error.response && error.response.status)
         if (code === 401) {

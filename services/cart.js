@@ -6,11 +6,12 @@ export default (context) => {
             return $axios.$get('/cart')
         },
 
-        addToCart(productId, quantity, variantId = null) {
+        addToCart(productId, quantity, colorId = null, sizeId = null) {
             return $axios.$post('/cart/add', {
                 product_id: productId,
                 quantity,
-                variant_id: variantId
+                color_id: colorId,
+                size_id: sizeId
             })
         },
 

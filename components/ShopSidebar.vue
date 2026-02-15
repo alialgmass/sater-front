@@ -17,7 +17,7 @@
             <h4 class="pro-sidebar-title">{{ $t('categories') }}</h4>
             <ul class="sidebar-widget-list mt-20">
                 <li class="sidebar-widget-list-left" v-for="(category, index) in categoryList" :key="index">
-                    <n-link :to="localePath(`?category=${category.slug || slugify(category)}`)">
+                    <n-link :to="localePath({ path: '/shop', query: { category: category.slug || category.id } })">
                         <span class="check-mark"></span>
                         {{ category.name || category }}
                     </n-link>
@@ -30,9 +30,9 @@
             <h4 class="pro-sidebar-title">{{ $t('color') }}</h4>
             <ul class="sidebar-widget-list mt-20">
                 <li class="sidebar-widget-list-left" v-for="(color, index) in colorList" :key="index" >
-                    <n-link :to="localePath(`?color=${slugify(color)}`)">
-                        <span class="check-mark"></span>
-                        {{ color }}
+                    <n-link :to="localePath({ path: '/shop', query: { color_id: color.id } })">
+                        <span class="check-mark" :style="{ backgroundColor: color.hex_code }"></span>
+                        {{ color.name }}
                     </n-link>
                 </li>
             </ul>
@@ -43,9 +43,9 @@
             <h4 class="pro-sidebar-title">{{ $t('sizes') }}</h4>
             <ul class="sidebar-widget-list mt-20">
                 <li class="sidebar-widget-list-left" v-for="(size, index) in sizeList" :key="index" >
-                    <n-link :to="localePath(`?size=${slugify(size)}`)">
+                    <n-link :to="localePath({ path: '/shop', query: { size_id: size.id } })">
                         <span class="check-mark"></span>
-                        {{ size }}
+                        {{ size.name }} ({{ size.abbreviation }})
                     </n-link>
                 </li>
             </ul>
@@ -57,8 +57,8 @@
             <div class="sidebar-widget-tag mt-30">
                 <ul>
                     <li v-for="(tag, index) in tagList" :key="index">
-                        <n-link :to="localePath(`?tag=${slugify(tag)}`)">
-                            {{ tag }}
+                        <n-link :to="localePath({ path: '/shop', query: { tag_id: tag.slug } })">
+                            {{ tag.name }}
                         </n-link>
                     </li>
                 </ul>
