@@ -105,7 +105,112 @@
                                 </div>
                                 <div class="panel panel-default single-my-account">
                                     <div class="panel-heading my-account-title">
-                                        <h3 class="panel-title"><span>3 .</span> <a data-bs-toggle="collapse" href="#my-account-3">{{ $t('modify_address_book') }}   </a></h3>
+                                        <h3 class="panel-title"><span>3 .</span> <a data-bs-toggle="collapse" href="#my-account-orders">{{ $t('orders') }}</a></h3>
+                                    </div>
+                                    <div id="my-account-orders" class="panel-collapse collapse" :class="{ 'show': activeTab === 'orders' }" data-bs-parent="#faq">
+                                        <div class="panel-body">
+                                            <div class="myaccount-info-wrapper">
+                                                <div class="account-info-wrapper">
+                                                    <h4>{{ selectedOrder ? $t('order_details') : $t('orders') }}</h4>
+                                                </div>
+                                                
+                                                <!-- Order Details View -->
+                                                <div class="order-details-wrapper" v-if="selectedOrder">
+                                                    <div class="row mb-30">
+                                                        <div class="col-md-6">
+                                                            <h5>{{ $t('order_id') }}: {{ selectedOrder.order_number }}</h5>
+                                                            <p>{{ $t('date') }}: {{ new Date(selectedOrder.created_at).toLocaleDateString() }}</p>
+                                                            <p>{{ $t('status') }}: <span class="badge bg-primary">{{ selectedOrder.status }}</span></p>
+                                                        </div>
+                                                        <div class="col-md-6 text-md-end">
+                                                            <button class="btn btn-secondary" @click="closeOrderDetails">{{ $t('back_to_orders') }}</button>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <div class="row mb-30">
+                                                        <div class="col-md-6">
+                                                            <div class="card">
+                                                                <div class="card-header">{{ $t('shipping_info') }}</div>
+                                                                <div class="card-body">
+                                                                    <p v-if="selectedOrder.shipping_address">
+                                                                        {{ selectedOrder.shipping_address.street }}<br>
+                                                                        {{ selectedOrder.shipping_address.city }}, {{ selectedOrder.shipping_address.country }}
+                                                                    </p>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <div class="card">
+                                                                <div class="card-header">{{ $t('billing_info') }}</div>
+                                                                <div class="card-body">
+                                                                    <p>{{ $t('payment_method') }}: {{ selectedOrder.payment_method }}</p>
+                                                                    <p>{{ $t('payment_status') }}: {{ selectedOrder.payment_status }}</p>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="table-responsive">
+                                                        <table class="table table-bordered">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th>{{ $t('items') }}</th>
+                                                                    <th>{{ $t('quantity') }}</th>
+                                                                    <th>{{ $t('price') }}</th>
+                                                                    <th>{{ $t('total') }}</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                <tr v-for="item in selectedOrder.items" :key="item.id">
+                                                                    <td>{{ item.product_name }}</td>
+                                                                    <td>{{ item.quantity }}</td>
+                                                                    <td>${{ parseFloat(item.price).toFixed(2) }}</td>
+                                                                    <td>${{ parseFloat(item.total).toFixed(2) }}</td>
+                                                                </tr>
+                                                            </tbody>
+                                                            <tfoot>
+                                                                <tr>
+                                                                    <td colspan="3" class="text-end"><strong>{{ $t('total') }}</strong></td>
+                                                                    <td><strong>${{ parseFloat(selectedOrder.total_amount).toFixed(2) }}</strong></td>
+                                                                </tr>
+                                                            </tfoot>
+                                                        </table>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Orders List View -->
+                                                <div class="account-orders-table table-responsive" v-else-if="orders.length > 0">
+                                                    <table class="table">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>{{ $t('order_id') }}</th>
+                                                                <th>{{ $t('date') }}</th>
+                                                                <th>{{ $t('status') }}</th>
+                                                                <th>{{ $t('total') }}</th>
+                                                                <th>{{ $t('action') }}</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <tr v-for="order in orders" :key="order.id">
+                                                                <td>{{ order.order_number }}</td>
+                                                                <td>{{ new Date(order.created_at).toLocaleDateString() }}</td>
+                                                                <td>{{ order.status }}</td>
+                                                                <td>${{ parseFloat(order.total_amount).toFixed(2) }}</td>
+                                                                <td><a href="#" class="check-btn sqr-btn" @click.prevent="viewOrder(order.order_number)">{{ $t('view') }}</a></td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                                <div v-else class="text-center mt-20">
+                                                    <p>{{ $t('no_orders') }}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="panel panel-default single-my-account">
+                                    <div class="panel-heading my-account-title">
+                                        <h3 class="panel-title"><span>4 .</span> <a data-bs-toggle="collapse" href="#my-account-3">{{ $t('modify_address_book') }}   </a></h3>
                                     </div>
                                     <div id="my-account-3" class="panel-collapse collapse" data-bs-parent="#faq">
                                         <div class="panel-body">
@@ -173,7 +278,16 @@
                     new: '',
                     confirm: ''
                 },
-                loading: false
+                password: {
+                    current: '',
+                    new: '',
+                    confirm: ''
+                },
+                loading: false,
+                loading: false,
+                orders: [],
+                selectedOrder: null,
+                activeTab: 'info' // Default tab
             }
         },
         computed: {
@@ -200,6 +314,11 @@
         async mounted() {
             if (this.$store.state.auth.isAuthenticated) {
                 await this.$store.dispatch('auth/fetchProfile')
+                await this.fetchOrders()
+            }
+            if (this.$route.query.tab === 'orders') {
+                this.activeTab = 'orders'
+                // Close other tabs logic if needed, but 'show' class handling usually suffices for bootstrap accordion if not using v-model
             }
         },
         methods: {
@@ -217,6 +336,29 @@
             async changePassword() {
                 // Implement change password logic if API supports it
                 this.$notify({ type: 'info', text: 'Password change functionality coming soon'})
+            },
+            async fetchOrders() {
+                try {
+                    const response = await this.$orderService.getOrders()
+                    this.orders = response.data || response // Adjust based on API response structure
+                } catch (error) {
+                    console.error('Failed to fetch orders', error)
+                }
+            },
+            async viewOrder(orderId) {
+                this.loading = true
+                try {
+                    const response = await this.$orderService.getOrder(orderId)
+                    this.selectedOrder = response.data || response
+                } catch (error) {
+                    console.error('Failed to fetch order details', error)
+                    this.$notify({ type: 'error', text: 'Failed to LOAD order details' })
+                } finally {
+                    this.loading = false
+                }
+            },
+            closeOrderDetails() {
+                this.selectedOrder = null
             }
         },
         head() {

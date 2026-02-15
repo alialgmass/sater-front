@@ -23,12 +23,12 @@
                                 <tbody>
                                     <tr v-for="(item, index) in products" :key="index">
                                         <td class="product-thumbnail">
-                                            <n-link :to="`/product/${item.product_id}`">
+                                            <n-link :to="localePath(`/product/${item.product_id}`)">
                                                 <img :src="item.product && item.product.images ? item.product.images[0]?.url : '/img/placeholder.png'" :alt="item.product ? item.product.name : ''">
                                             </n-link>
                                         </td>
                                         <td class="product-name">
-                                            <n-link :to="`/product/${item.product_id}`">{{ item.product ? item.product.name : 'Product' }}</n-link>
+                                            <n-link :to="localePath(`/product/${item.product_id}`)">{{ item.product ? item.product.name : 'Product' }}</n-link>
                                         </td>
                                         <td class="product-price-cart">
                                             <span class="amount">${{ parseFloat(item.price || 0).toFixed(2) }}</span>
@@ -64,14 +64,14 @@
                             <div class="col-lg-4 col-md-6">
                                 <div class="cart-tax">
                                     <div class="title-wrap">
-                                        <h4 class="cart-bottom-title section-bg-gray">Estimate Shipping And Tax</h4>
+                                        <h4 class="cart-bottom-title section-bg-gray">{{ $t('estimate_shipping') }}</h4>
                                     </div>
                                     <div class="tax-wrapper">
-                                        <p>Enter your destination to get a shipping estimate.</p>
+                                        <p>{{ $t('shipping_estimate_text') }}</p>
                                         <div class="tax-select-wrapper">
                                             <div class="tax-select">
                                                 <label>
-                                                    * Country
+                                                    * {{ $t('country_label') }}
                                                 </label>
                                                 <select class="email s-email s-wid">
                                                     <option>Bangladesh</option>
@@ -83,7 +83,7 @@
                                             </div>
                                             <div class="tax-select">
                                                 <label>
-                                                    * Region / State
+                                                    * {{ $t('region_state_label') }}
                                                 </label>
                                                 <select class="email s-email s-wid">
                                                     <option>Bangladesh</option>
@@ -95,11 +95,11 @@
                                             </div>
                                             <div class="tax-select">
                                                 <label>
-                                                    * Zip/Postal Code
+                                                    * {{ $t('zip_postal_label') }}
                                                 </label>
                                                 <input type="text">
                                             </div>
-                                            <button class="cart-btn-2" type="submit">Get A Quote</button>
+                                            <button class="cart-btn-2" type="submit">{{ $t('get_a_quote') }}</button>
                                         </div>
                                     </div>
                                 </div>
@@ -107,13 +107,13 @@
                             <div class="col-lg-4 col-md-6">
                                 <div class="discount-code-wrapper">
                                     <div class="title-wrap">
-                                    <h4 class="cart-bottom-title section-bg-gray">Use Coupon Code</h4> 
+                                    <h4 class="cart-bottom-title section-bg-gray">{{ $t('use_coupon_code') }}</h4> 
                                     </div>
                                     <div class="discount-code">
-                                        <p>Enter your coupon code if you have one.</p>
+                                        <p>{{ $t('coupon_text') }}</p>
                                         <form>
                                             <input type="text" required="" name="name">
-                                            <button class="cart-btn-2" type="submit">Apply Coupon</button>
+                                            <button class="cart-btn-2" type="submit">{{ $t('apply_coupon') }}</button>
                                         </form>
                                     </div>
                                 </div>
@@ -191,13 +191,13 @@
             },
 
             removeProduct(item) {
-                this.$notify({ type: 'success', text: 'Item removed from cart!'})
+                this.$notify({ type: 'success', text: this.$t('item_removed') })
                 this.$store.dispatch('cart/removeProductFromCart', item.id)
             },
 
             clearCart() {
-                if (confirm("Are you sure you want to clear cart?")) {
-                    this.$notify({ type: 'success', text: 'Cart cleared!'})
+                if (confirm(this.$t('clear_cart_confirm'))) {
+                    this.$notify({ type: 'success', text: this.$t('cart_cleared') })
                     // Add clearCart action to store if needed, or loop removes
                 }
             }
@@ -205,7 +205,7 @@
 
         head() {
             return {
-                title: "Cart"
+                title: this.$t('cart')
             }
         },
     };

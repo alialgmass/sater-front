@@ -3,6 +3,7 @@ import createProductService from '~/services/products'
 import createCartService from '~/services/cart'
 import createWishlistService from '~/services/wishlist'
 import createOrderService from '~/services/orders'
+import CheckoutService from '~/services/checkoutService'
 
 export default (context, inject) => {
     const authService = createAuthService(context)
@@ -10,10 +11,12 @@ export default (context, inject) => {
     const cartService = createCartService(context)
     const wishlistService = createWishlistService(context)
     const orderService = createOrderService(context)
+    const checkoutService = new CheckoutService(context.$axios)
 
     inject('authService', authService)
     inject('productService', productService)
     inject('cartService', cartService)
     inject('wishlistService', wishlistService)
     inject('orderService', orderService)
+    inject('checkoutService', checkoutService)
 }

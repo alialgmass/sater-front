@@ -52,7 +52,7 @@
         },
         head() {
             return {
-                title: "Login / Register"
+                title: this.$t('login_register_tab')
             }
         }
     };

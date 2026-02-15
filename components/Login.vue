@@ -44,7 +44,7 @@ export default {
                 })
                 this.$notify({
                     type: 'success',
-                    text: 'Logged in successfully!'
+                    text: this.$t('login_success')
                 })
                 this.$router.push('/my-account')
             } catch (error) {

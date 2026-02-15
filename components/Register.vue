@@ -45,7 +45,7 @@ export default {
                 })
                 this.$notify({
                     type: 'success',
-                    text: 'Registered successfully!'
+                    text: this.$t('registration_success')
                 })
                 this.$router.push('/my-account')
             } catch (error) {

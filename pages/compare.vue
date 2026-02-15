@@ -1,7 +1,7 @@
 <template>
     <div class="compare-page-wrapper">
         <HeaderWithTopbar containerClass="container" />
-        <Breadcrumb pageTitle="compare" />
+        <Breadcrumb :pageTitle="$t('compare')" />
         
         <!-- Compare section start -->
         <div class="compare-page-wrapper pt-100 pb-100">
@@ -14,37 +14,37 @@
                                 <table class="table table-bordered mb-0">
                                     <tbody>
                                         <tr>
-                                            <td class="first-column">Product</td>
+                                            <td class="first-column">{{ $t('product_label') }}</td>
                                             <td class="product-image-title" v-for="(product, index) in products" :key="index">
-                                                <n-link :to="`/product/${slugify(product.title)}`" class="image">
+                                                <n-link :to="localePath(`/product/${slugify(product.title)}`)" class="image">
                                                     <img class="img-fluid" :src="product.images[0]" :alt="product.title">
                                                 </n-link>
                                                 <h4 class="title">
-                                                    <n-link :to="`/product/${slugify(product.title)}`">{{ product.title }}</n-link>
+                                                    <n-link :to="localePath(`/product/${slugify(product.title)}`)">{{ product.title }}</n-link>
                                                 </h4>
                                             </td>
                                         </tr>
                                         <tr>
-                                            <td class="first-column">Description</td>
+                                            <td class="first-column">{{ $t('description_label') }}</td>
                                             <td class="pro-desc" v-for="(product, index) in products" :key="index">
                                                 <p>{{ product.description }}</p>
                                             </td>
                                         </tr>
                                         <tr>
-                                            <td class="first-column">Price</td>
+                                            <td class="first-column">{{ $t('price_label') }}</td>
                                             <td class="pro-price" v-for="(product, index) in products" :key="index">
                                                 <span>${{ parseFloat(discountedPrice(product) || 0).toFixed(2) }}</span>
                                                 <del class="old" v-if="product.discount > 0">${{ parseFloat(product.price || 0).toFixed(2) }}</del>
                                             </td>
                                         </tr>
                                         <tr>
-                                            <td class="first-column">Add to cart</td>
+                                            <td class="first-column">{{ $t('add_to_cart') }}</td>
                                             <td v-for="(product, index) in products" :key="index">
-                                                <button @click="addToCart(product)" class="btn">Add to Cart</button>
+                                                <button @click="addToCart(product)" class="btn">{{ $t('add_to_cart') }}</button>
                                             </td>
                                         </tr>
                                         <tr>
-                                            <td class="first-column">Rating</td>
+                                            <td class="first-column">{{ $t('rating_label') }}</td>
                                             <td class="pro-ratting" v-for="(product, index) in products" :key="index">
                                                 <i class="fa fa-star"></i>
                                                 <i class="fa fa-star"></i>
@@ -54,7 +54,7 @@
                                             </td>
                                         </tr>
                                         <tr>
-                                            <td class="first-column">Remove</td>
+                                            <td class="first-column">{{ $t('remove_label') }}</td>
                                             <td class="pro-remove" v-for="(product, index) in products" :key="index">
                                                 <button @click="removeFromCompare(product)"><i class="fa fa-trash-o"></i></button>
                                             </td>
@@ -69,8 +69,8 @@
                             <div class="icon">
                                 <i class="pe-7s-shuffle"></i>
                             </div>
-                            <h4>No items found in compare</h4>
-                            <n-link to="/shop" class="empty-cart__button">Add Item</n-link>
+                            <h4>{{ $t('empty_compare_message') }}</h4>
+                            <n-link :to="localePath('/shop')" class="empty-cart__button">{{ $t('add_item') }}</n-link>
                         </div>
                     </div>
                 </div>
@@ -99,16 +99,16 @@
                 const prod = {...product, cartQuantity: 1}
                 // for notification
                 if (this.$store.state.cart.find(el => product.id === el.id)) {
-                    this.$notify({ title: 'Already added to cart update with one' })
+                    this.$notify({ title: this.$t('already_in_cart') })
                 } else {
-                    this.$notify({ title: 'Add to cart successfully!'})
+                    this.$notify({ title: this.$t('add_to_cart_success') })
                 }
                 this.$store.dispatch('addToCartItem', prod)
             },
 
             removeFromCompare(product) {
                 // for notification
-                this.$notify({ title: 'Item remove from compare!'})
+                this.$notify({ title: this.$t('item_removed_compare') })
                 this.$store.dispatch('removeFromCompare', product)
             },
 
@@ -130,7 +130,7 @@
 
         head() {
             return {
-                title: "Compare"
+                title: this.$t('compare')
             }
         },
     };
