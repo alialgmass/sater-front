@@ -31,7 +31,7 @@
                                             <n-link :to="localePath(`/product/${item.product_id}`)">{{ item.product ? item.product.name : 'Product' }}</n-link>
                                         </td>
                                         <td class="product-price-cart">
-                                            <span class="amount">${{ parseFloat(item.price || 0).toFixed(2) }}</span>
+                                            <span class="amount">{{ $t('currency_symbol') }}{{ parseFloat(item.price || 0).toFixed(2) }}</span>
                                         </td>
                                         <td class="product-quantity">
                                             <div class="cart-plus-minus">
@@ -40,7 +40,7 @@
                                                 <button @click="incrementProduct(item)" class="inc qtybutton">+</button>
                                             </div>
                                         </td>
-                                        <td class="product-subtotal">${{ (parseFloat(item.price || 0) * item.quantity).toFixed(2) }}</td>
+                                        <td class="product-subtotal">{{ $t('currency_symbol') }}{{ (parseFloat(item.price || 0) * item.quantity).toFixed(2) }}</td>
                                         <td class="product-remove">
                                             <button @click="removeProduct(item)"><i class="fa fa-times"></i></button>
                                         </td>
@@ -74,11 +74,11 @@
                                                     * {{ $t('country_label') }}
                                                 </label>
                                                 <select class="email s-email s-wid">
-                                                    <option>Bangladesh</option>
-                                                    <option>Albania</option>
-                                                    <option>Aland Islands</option>
-                                                    <option>Afghanistan</option>
-                                                    <option>Belgium</option>
+                                                    <option>{{ $t('bangladesh') }}</option>
+                                                    <option>{{ $t('albania') }}</option>
+                                                    <option>{{ $t('aland_islands') }}</option>
+                                                    <option>{{ $t('afghanistan') }}</option>
+                                                    <option>{{ $t('belgium') }}</option>
                                                 </select>
                                             </div>
                                             <div class="tax-select">
@@ -86,11 +86,11 @@
                                                     * {{ $t('region_state_label') }}
                                                 </label>
                                                 <select class="email s-email s-wid">
-                                                    <option>Bangladesh</option>
-                                                    <option>Albania</option>
-                                                    <option>Aland Islands</option>
-                                                    <option>Afghanistan</option>
-                                                    <option>Belgium</option>
+                                                    <option>{{ $t('bangladesh') }}</option>
+                                                    <option>{{ $t('albania') }}</option>
+                                                    <option>{{ $t('aland_islands') }}</option>
+                                                    <option>{{ $t('afghanistan') }}</option>
+                                                    <option>{{ $t('belgium') }}</option>
                                                 </select>
                                             </div>
                                             <div class="tax-select">
@@ -123,8 +123,8 @@
                                     <div class="title-wrap">
                                         <h4 class="cart-bottom-title section-bg-gary-cart">{{ $t('cart_total_title') }}</h4>
                                     </div>
-                                    <h5>{{ $t('total_products') || 'Total products' }} <span>${{ parseFloat(total || 0).toFixed(2) }}</span></h5>
-                                    <h4 class="grand-total-title">{{ $t('total') }}  <span>${{ parseFloat(total || 0).toFixed(2) }}</span></h4>
+                                    <h5>{{ $t('total_products') }} <span>{{ $t('currency_symbol') }}{{ parseFloat(total || 0).toFixed(2) }}</span></h5>
+                                    <h4 class="grand-total-title">{{ $t('total') }}  <span>{{ $t('currency_symbol') }}{{ parseFloat(total || 0).toFixed(2) }}</span></h4>
                                     <n-link :to="localePath('/checkout')">{{ $t('proceed_to_checkout') }}</n-link>
                                 </div>
                             </div>

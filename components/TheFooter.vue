@@ -20,9 +20,9 @@
                         <div class="footer-list">
                             <ul>
                                 <li><n-link :to="localePath('/about')">{{ $t('about_us') }}</n-link></li>
-                                <li><n-link :to="localePath('/shop')">Store location</n-link></li>
+                                <li><n-link :to="localePath('/shop')">{{ $t('store_location') }}</n-link></li>
                                 <li><n-link :to="localePath('/contact')">{{ $t('contact') }}</n-link></li>
-                                <li><n-link :to="localePath('/contact')">Orders tracking</n-link></li>
+                                <li><n-link :to="localePath('/contact')">{{ $t('orders_tracking') }}</n-link></li>
                             </ul>
                         </div>
                     </div>
@@ -66,7 +66,7 @@
                             <p>{{ $t('subscribe_text') }}</p>
                             <div class="subscribe-form">
                                 <form class="mc-form">
-                                    <input class="email" type="email" required="" placeholder="Enter your email here.." name="email" >
+                                    <input class="email" type="email" required="" :placeholder="$t('enter_email')" name="email" >
                                     <button class="button" name="subscribe">{{ $t('subscribe') }}</button>
                                 </form>
                             </div>

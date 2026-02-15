@@ -151,46 +151,46 @@
                                 this.isAuthenticated ? 
                                 {
                                     url: '',
-                                    title: 'Logout',
+                                    title: this.$t('logout'),
                                     action: 'logout'
                                 } : 
                                 {
                                     url: '/login-register',
-                                    title: 'Login / Register',
+                                    title: this.$t('login_register_tab'),
                                 },
                             {
                                 url: '/contact',
-                                title: 'Contact us',
+                                title: this.$t('contact'),
                             },
                             {
                                 url: '/privacy-policy',
-                                title: 'Privacy Policy',
+                                title: this.$t('privacy_policy'),
                             },
                             {
                                 url: '/terms-conditions',
-                                title: 'Terms & Conditions',
+                                title: this.$t('terms_conditions'),
                             },
                         ]
                     },
                     {
                         url: '/blog',
-                        title: 'Blog',
+                        title: this.$t('blog'),
                         submenu: [
                             {
                                 url: '/blog',
-                                title: 'blog standard',
+                                title: this.$t('blog_standard'),
                             },
                             {
-                                url: '/blog/blog-right-sidebar',
-                                title: 'blog right sidebar',
+                                url: '/blog/blog-sidebar',
+                                title: this.$t('blog_sidebar'),
                             },
                             {
-                                url: '/blog/blog-without-sidebar',
-                                title: 'blog no sidebar',
+                                url: '/blog/blog-no-sidebar',
+                                title: this.$t('blog_no_sidebar'),
                             },
                             {
-                                url: '/blog/a-guide-to-latest-trends-product',
-                                title: 'blog details',
+                                url: '/blog/blog-details',
+                                title: this.$t('blog_details'),
                             }
                         ]
                     },

@@ -63,9 +63,9 @@
                                           <label>{{ $t('country') }} *</label>
                                           <select v-model="shippingAddress.country" required>
                                               <option value="">{{ $t('select_country') }}</option>
-                                              <option value="Saudi Arabia">Saudi Arabia</option>
-                                              <option value="Egypt">Egypt</option>
-                                              <option value="UAE">UAE</option>
+                                              <option value="Saudi Arabia">{{ $t('saudi_arabia') }}</option>
+                                              <option value="Egypt">{{ $t('egypt') }}</option>
+                                              <option value="UAE">{{ $t('uae') }}</option>
                                           </select>
                                       </div>
                                   </div>
@@ -116,7 +116,7 @@
                                       />
                                       <span class="method-name">{{ $t(method.label) }}</span>
                                       <span class="method-description">{{ $t(method.description) }}</span>
-                                      <span class="method-price">{{ method.price }}</span>
+                                      <span class="method-price">{{ method.price === 'Free' ? $t('free') : method.price }}</span>
                                   </label>
                               </div>
                           </div>
@@ -233,7 +233,7 @@
                                                   <span class="order-middle-left">
                                                       {{ item.name }} X {{ item.quantity }}
                                                   </span>
-                                                  <span class="order-price">${{ parseFloat(item.total_price || 0).toFixed(2) }}</span>
+                                                  <span class="order-price">{{ $t('currency_symbol') }}{{ parseFloat(item.total_price || 0).toFixed(2) }}</span>
                                               </li>
                                           </ul>
                                       </div>
@@ -242,26 +242,26 @@
                                   <div class="your-order-bottom">
                                       <ul>
                                           <li class="your-order-shipping">{{ $t('subtotal') }}</li>
-                                          <li>${{ parseFloat(orderSummary.subtotal || 0).toFixed(2) }}</li>
+                                          <li>{{ $t('currency_symbol') }}{{ parseFloat(orderSummary.subtotal || 0).toFixed(2) }}</li>
                                       </ul>
                                       <ul>
                                           <li class="your-order-shipping">{{ $t('tax') }}</li>
-                                          <li>${{ parseFloat(orderSummary.tax || 0).toFixed(2) }}</li>
+                                          <li>{{ $t('currency_symbol') }}{{ parseFloat(orderSummary.tax || 0).toFixed(2) }}</li>
                                       </ul>
                                       <ul>
                                           <li class="your-order-shipping">{{ $t('shipping') }}</li>
-                                          <li>${{ parseFloat(orderSummary.shipping_fee || 0).toFixed(2) }}</li>
+                                          <li>{{ $t('currency_symbol') }}{{ parseFloat(orderSummary.shipping_fee || 0).toFixed(2) }}</li>
                                       </ul>
                                       <ul v-if="orderSummary.discount">
                                           <li class="your-order-shipping">{{ $t('discount') }}</li>
-                                          <li class="discount-amount">-${{ parseFloat(orderSummary.discount || 0).toFixed(2) }}</li>
+                                          <li class="discount-amount">-{{ $t('currency_symbol') }}{{ parseFloat(orderSummary.discount || 0).toFixed(2) }}</li>
                                       </ul>
                                   </div>
                                   
                                   <div class="your-order-total">
                                       <ul>
                                           <li class="order-total">{{ $t('total') }}</li>
-                                          <li>${{ parseFloat(orderSummary.total || 0).toFixed(2) }}</li>
+                                          <li>{{ $t('currency_symbol') }}{{ parseFloat(orderSummary.total || 0).toFixed(2) }}</li>
                                       </ul>
                                   </div>
                               </div>
@@ -294,7 +294,7 @@
                           <h2>{{ $t('order_success_title') }}</h2>
                           <p class="mb-20">{{ $t('order_success_message') }}</p>
                           <p><strong>{{ $t('order_number') }}:</strong> {{ orderNumber }}</p>
-                          <p><strong>{{ $t('total') }}:</strong> ${{ parseFloat(orderTotal || 0).toFixed(2) }}</p>
+                          <p><strong>{{ $t('total') }}:</strong> {{ $t('currency_symbol') }}{{ parseFloat(orderTotal || 0).toFixed(2) }}</p>
                           
                           <div class="mt-40">
                               <n-link :to="localePath('/')" class="btn-hover">
@@ -481,13 +481,13 @@
                     this.couponCode = ''
                     this.$notify({ 
                         type: 'success', 
-                        text: 'Coupon applied successfully!'
+                        text: this.$t('coupon_applied_success')
                     })
                 } catch (error) {
                     console.error('Coupon error:', error)
                     this.$notify({ 
                         type: 'error', 
-                        text: error.response?.data?.message || 'Invalid coupon code'
+                        text: error.response?.data?.message || this.$t('invalid_coupon_code')
                     })
                 } finally {
                     this.loading = false

@@ -56,6 +56,73 @@
             &:first-child {
                 margin-right: 0;
             }
+
+            .count-style {
+                right: auto;
+                left: -8px;
+            }
+
+            .minicart-wrapper {
+                right: auto;
+                left: 0;
+                text-align: right;
+
+                .shopping-cart-content {
+                    .shopping-cart-title {
+                        padding-right: 0;
+                        padding-left: 10px;
+                    }
+
+                    .shopping-cart-total {
+                        h4 {
+                            span {
+                                float: left;
+                            }
+                        }
+                    }
+                }
+            }
+
+            .account-dropdown {
+                right: auto;
+                left: 0;
+                text-align: right;
+            }
+        }
+    }
+
+    // Slider
+    .nav-style-1 {
+        .hero-slider-nav {
+            left: auto;
+            right: 80px;
+
+            @media #{$xl-layout, $lg-layout, $md-layout, $xs-layout} {
+                right: 15px;
+                left: auto;
+            }
+
+            &.swiper-button-next {
+                right: auto;
+                left: 80px;
+
+                @media #{$xl-layout, $lg-layout, $md-layout, $xs-layout} {
+                    left: 15px;
+                    right: auto;
+                }
+            }
+        }
+
+        &.nav-style-3 {
+            .hero-slider-nav {
+                right: auto;
+                left: 0;
+
+                &.swiper-button-prev {
+                    left: 60px;
+                    right: auto;
+                }
+            }
         }
     }
 
@@ -132,7 +199,11 @@
     }
 
     .pe-7s-angle-right:before {
-        content: "\e686"; // pe-7s-angle-left equivalent if known, else rotate
+        content: "\e686"; // pe-7s-angle-left
+    }
+
+    .pe-7s-angle-left:before {
+        content: "\e684"; // pe-7s-angle-right
     }
 
     // Checkout components

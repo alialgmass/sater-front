@@ -13,8 +13,8 @@
                             <h4>
                                 <n-link :to="`/product/${item.product_id}`">{{ item.product ? item.product.name : 'Product' }}</n-link>
                             </h4>
-                            <h6>Qty: {{ item.quantity }}</h6>
-                            <span>${{ parseFloat(item.price || 0).toFixed(2) }}</span>
+                            <h6>{{ $t('qty') }}: {{ item.quantity }}</h6>
+                            <span>{{ $t('currency_symbol') }}{{ parseFloat(item.price || 0).toFixed(2) }}</span>
                         </div>
                         <div class="shopping-cart-delete">
                             <button @click="removeProduct(item)">
@@ -24,15 +24,15 @@
                     </li>
                 </ul>
                 <div class="shopping-cart-total">
-                    <h4>Total : <span class="shop-total">${{ parseFloat(total || 0).toFixed(2) }}</span></h4>
+                    <h4>{{ $t('total') }} : <span class="shop-total">{{ $t('currency_symbol') }}{{ parseFloat(total || 0).toFixed(2) }}</span></h4>
                 </div>
                 <div class="shopping-cart-btn btn-hover text-center" @click="$emit('minicartClose')">
-                    <n-link to="/cart" class="default-btn">view cart</n-link>
-                    <n-link to="/checkout" class="default-btn">checkout</n-link>
+                    <n-link :to="localePath('/cart')" class="default-btn">{{ $t('view_cart') }}</n-link>
+                    <n-link :to="localePath('/checkout')" class="default-btn">{{ $t('checkout') }}</n-link>
                 </div>
             </div>
             <div class="shopping-cart-content text-center" v-else>
-                <p>No items added to cart</p>
+                <p>{{ $t('no_items_cart') }}</p>
             </div>
         </div>
     </client-only>
@@ -53,7 +53,7 @@
 
         methods: {
             removeProduct(item) {
-                this.$notify({ type: 'success', text: 'Item removed from cart!'})
+                this.$notify({ type: 'success', text: this.$t('item_removed') })
                 this.$store.dispatch('cart/removeProductFromCart', item.id)
             }
         },

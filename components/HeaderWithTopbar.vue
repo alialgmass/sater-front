@@ -39,7 +39,7 @@
                                     <button class="search-active" @click="isOpenSearch = !isOpenSearch"><i class="pe-7s-search"></i></button>
                                     <div class="search-content" :class="{ active:isOpenSearch }">
                                         <form>
-                                            <input type="text" placeholder="Search" />
+                                            <input type="text" :placeholder="$t('search')" />
                                             <button class="button-search"><i class="pe-7s-search"></i></button>
                                         </form>
                                     </div> 
