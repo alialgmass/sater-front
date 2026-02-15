@@ -33,8 +33,8 @@
                                         <tr>
                                             <td class="first-column">Price</td>
                                             <td class="pro-price" v-for="(product, index) in products" :key="index">
-                                                <span>${{ discountedPrice(product).toFixed(2) }}</span>
-                                                <del class="old" v-if="product.discount > 0">${{ product.price.toFixed(2) }}</del>
+                                                <span>${{ parseFloat(discountedPrice(product) || 0).toFixed(2) }}</span>
+                                                <del class="old" v-if="product.discount > 0">${{ parseFloat(product.price || 0).toFixed(2) }}</del>
                                             </td>
                                         </tr>
                                         <tr>

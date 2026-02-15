@@ -1,17 +1,17 @@
 <template>
     <div class="login-form">
         <form @submit.prevent="handleLogin">
-            <input type="email" v-model="email" placeholder="Email" required>
-            <input type="password" v-model="password" placeholder="Password" required>
+            <input type="email" v-model="email" :placeholder="$t('email_placeholder')" required>
+            <input type="password" v-model="password" :placeholder="$t('password_placeholder')" required>
             <div class="button-box">
                 <div class="login-toggle-btn">
                     <input type="checkbox">
-                    <label>Remember me</label>
-                    <a href="#">Forgot Password?</a>
+                    <label>{{ $t('remember_me') }}</label>
+                    <a href="#">{{ $t('forgot_password') }}</a>
                 </div>
                 <button type="submit" :disabled="loading">
-                    <span v-if="loading">Loading...</span>
-                    <span v-else>Login</span>
+                    <span v-if="loading">{{ $t('loading') }}</span>
+                    <span v-else>{{ $t('login_submit') }}</span>
                 </button>
             </div>
             <p v-if="error" class="text-danger mt-2">{{ error }}</p>

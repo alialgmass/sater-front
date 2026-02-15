@@ -1,7 +1,7 @@
 <template>
     <ul>
         <li>
-            <n-link to="/">Home <i class="fa fa-angle-down"></i></n-link>
+            <n-link :to="localePath('/')">{{ $t('home') }} <i class="fa fa-angle-down"></i></n-link>
             <ul class="mega-menu mega-menu-padding">
                 <li>
                     <ul>
@@ -57,62 +57,37 @@
             </ul>
         </li>
         <li>
-            <n-link to="/shop"> Shop <i class="fa fa-angle-down"></i></n-link>
+            <n-link :to="localePath('/shop')"> {{ $t('shop') }} <i class="fa fa-angle-down"></i></n-link>
             <ul class="mega-menu">
                 <li>
                     <ul>
                         <li class="mega-menu-title">
-                            <n-link to="/shop">Categories</n-link>
+                            <n-link :to="localePath('/shop')">{{ $t('all_categories') }}</n-link>
                         </li>
                         <li v-for="(category, index) in categories" :key="index">
-                            <n-link :to="`/shop?category=${category.slug || category}`">{{ category.name || category }}</n-link>
-                        </li>
-                    </ul>
-                </li>
-                <li>
-                    <ul>
-                        <li class="mega-menu-title">
-                            <n-link to="">product details</n-link>
-                        </li>
-                        <li>
-                            <n-link to="/product/crew-ventile-coat-one">product variation</n-link>
-                        </li>
-                        <li>
-                            <n-link to="/product/product-affiliate">product affiliate</n-link>
-                        </li>
-                        <li>
-                            <n-link to="/product/women-winter-overcoat-one">product simple</n-link>
-                        </li>
-                    </ul>
-                </li>
-                <li>
-                    <ul>
-                        <li class="mega-menu-img">
-                            <n-link to="/shop">
-                                <img src="/img/banner/banner-12.png" alt="flone">
-                            </n-link>
+                            <n-link :to="localePath(`/shop?category=${category.slug || category}`)">{{ category.name || category }}</n-link>
                         </li>
                     </ul>
                 </li>
             </ul>
         </li>
         <li>
-            <n-link to="">Pages <i class="fa fa-angle-down"></i></n-link>
+            <n-link to="">{{ $t('pages') }} <i class="fa fa-angle-down"></i></n-link>
             <ul class="submenu">
-                <li><n-link to="/cart">Cart</n-link></li>
-                <li><n-link to="/checkout">Checkout</n-link></li>
-                <li><n-link to="/wishlist">Wishlist</n-link></li>
-                <li><n-link to="/compare">Compare</n-link></li>
-                <li><n-link to="/about">about us</n-link></li>
-                <li><n-link to="/my-account">My Account</n-link></li>
-                <li><n-link to="/login-register">Login / Register</n-link></li>
-                <li><n-link to="/contact">Contact us</n-link></li>
-                <li><n-link to="/privacy-policy">Privacy Policy</n-link></li>
-                <li><n-link to="/terms-conditions">Terms Conditions</n-link></li>
+                <li><n-link :to="localePath('/cart')">{{ $t('cart') }}</n-link></li>
+                <li><n-link :to="localePath('/checkout')">{{ $t('checkout') }}</n-link></li>
+                <li><n-link :to="localePath('/wishlist')">{{ $t('wishlist') }}</n-link></li>
+                <li><n-link :to="localePath('/compare')">{{ $t('compare') }}</n-link></li>
+                <li><n-link :to="localePath('/about')">{{ $t('about_us') }}</n-link></li>
+                <li><n-link :to="localePath('/my-account')">{{ $t('my_account') }}</n-link></li>
+                <li><n-link :to="localePath('/login-register')">{{ $t('login') }} / {{ $t('register') }}</n-link></li>
+                <li><n-link :to="localePath('/contact')">{{ $t('contact') }}</n-link></li>
+                <li><n-link :to="localePath('/privacy-policy')">Privacy Policy</n-link></li>
+                <li><n-link :to="localePath('/terms-conditions')">Terms Conditions</n-link></li>
             </ul>
         </li>
         <li>
-            <n-link to="/blog">Blog <i class="fa fa-angle-down"></i></n-link>
+            <n-link :to="localePath('/blog')">{{ $t('blog') }} <i class="fa fa-angle-down"></i></n-link>
             <ul class="submenu">
                 <li>
                     <n-link to="/blog">blog standard</n-link>
@@ -129,7 +104,7 @@
             </ul>
         </li>
         <li>
-            <n-link to="/contact">Contact </n-link>
+            <n-link :to="localePath('/contact')">{{ $t('contact') }} </n-link>
         </li>
     </ul>
 </template>

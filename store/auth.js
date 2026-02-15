@@ -27,6 +27,15 @@ export const mutations = {
     }
 }
 
+export const getters = {
+    isAuthenticated(state) {
+        return state.isAuthenticated
+    },
+    user(state) {
+        return state.user
+    }
+}
+
 export const actions = {
     async login({ commit }, { email, password }) {
         commit('SET_LOADING', true)
@@ -34,11 +43,24 @@ export const actions = {
         try {
             const response = await this.$authService.login(email, password)
 
-            localStorage.setItem('auth_token', response.token)
-            localStorage.setItem('user', JSON.stringify(response.user))
+            // Handle deeply nested structure: response.data.customer and response.data.token
+            const res = response.data || response.body || response
+            const token = res.token
+            const user = res.customer || res.user || res
 
-            commit('SET_TOKEN', response.token)
-            commit('SET_USER', response.user)
+            if (token) {
+                localStorage.setItem('auth_token', token)
+                commit('SET_TOKEN', token)
+            }
+            if (user && user !== res) {
+                localStorage.setItem('user', JSON.stringify(user))
+                commit('SET_USER', user)
+            } else if (res && !res.token) {
+                // If res itself is the user (e.g. no token returned)
+                localStorage.setItem('user', JSON.stringify(res))
+                commit('SET_USER', res)
+            }
+
             return response
         } catch (error) {
             commit('SET_ERROR', error.response?.data?.message || 'Login failed')
@@ -54,14 +76,62 @@ export const actions = {
         try {
             const response = await this.$authService.register(userData)
 
-            localStorage.setItem('auth_token', response.token)
-            localStorage.setItem('user', JSON.stringify(response.user))
+            // Handle deeply nested structure
+            const res = response.data || response.body || response
+            const token = res.token
+            const user = res.customer || res.user || res
 
-            commit('SET_TOKEN', response.token)
-            commit('SET_USER', response.user)
+            if (token) {
+                localStorage.setItem('auth_token', token)
+                commit('SET_TOKEN', token)
+            }
+            if (user && user !== res) {
+                localStorage.setItem('user', JSON.stringify(user))
+                commit('SET_USER', user)
+            } else if (res && !res.token) {
+                localStorage.setItem('user', JSON.stringify(res))
+                commit('SET_USER', res)
+            }
+
             return response
         } catch (error) {
             commit('SET_ERROR', error.response?.data?.message || 'Registration failed')
+            throw error
+        } finally {
+            commit('SET_LOADING', false)
+        }
+    },
+
+    async fetchProfile({ commit }) {
+        commit('SET_LOADING', true)
+        try {
+            const response = await this.$authService.getProfile()
+            const res = response.data || response.body || response
+            const user = res.customer || res.user || res
+
+            commit('SET_USER', user)
+            localStorage.setItem('user', JSON.stringify(user))
+            return user
+        } catch (error) {
+            console.error('Fetch profile failed', error)
+        } finally {
+            commit('SET_LOADING', false)
+        }
+    },
+
+    async updateProfile({ commit }, profileData) {
+        commit('SET_LOADING', true)
+        commit('SET_ERROR', null)
+        try {
+            const response = await this.$authService.updateProfile(profileData)
+            const res = response.data || response.body || response
+            const user = res.customer || res.user || res
+
+            commit('SET_USER', user)
+            localStorage.setItem('user', JSON.stringify(user))
+            return user
+        } catch (error) {
+            commit('SET_ERROR', error.response?.data?.message || 'Profile update failed')
             throw error
         } finally {
             commit('SET_LOADING', false)

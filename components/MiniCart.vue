@@ -14,7 +14,7 @@
                                 <n-link :to="`/product/${item.product_id}`">{{ item.product ? item.product.name : 'Product' }}</n-link>
                             </h4>
                             <h6>Qty: {{ item.quantity }}</h6>
-                            <span>${{ item.price.toFixed(2) }}</span>
+                            <span>${{ parseFloat(item.price || 0).toFixed(2) }}</span>
                         </div>
                         <div class="shopping-cart-delete">
                             <button @click="removeProduct(item)">
@@ -24,7 +24,7 @@
                     </li>
                 </ul>
                 <div class="shopping-cart-total">
-                    <h4>Total : <span class="shop-total">${{ total.toFixed(2) }}</span></h4>
+                    <h4>Total : <span class="shop-total">${{ parseFloat(total || 0).toFixed(2) }}</span></h4>
                 </div>
                 <div class="shopping-cart-btn btn-hover text-center" @click="$emit('minicartClose')">
                     <n-link to="/cart" class="default-btn">view cart</n-link>

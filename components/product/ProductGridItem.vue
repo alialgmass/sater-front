@@ -1,31 +1,31 @@
 <template>
     <div class="product-wrap mb-30">
         <div class="product-img">
-            <n-link :to="`/product/${product.id}`">
+            <n-link :to="localePath(`/product/${product.id}`)">
                 <img class="default-img" :src="productImage" :alt="productName">
                 <img v-if="productHoverImage" class="hover-img" :src="productHoverImage" :alt="productName">
             </n-link>
             <div class="product-badges">
-                <span class="product-label pink" v-if="product.is_new || product.new">New</span>
+                <span class="product-label pink" v-if="product.is_new || product.new">{{ $t('new') }}</span>
                 <span class="product-label purple" v-if="product.discount">-{{ product.discount }}%</span>
             </div>
             <div class="product-action" v-if="layout === 'twoColumn' || layout === 'threeColumn'">
                 <div class="pro-same-action pro-wishlist">
-                    <button class="btn" title="Wishlist" @click="addToWishlist(product)"> 
+                    <button class="btn" :title="$t('wishlist')" @click="addToWishlist(product)"> 
                         <i class="pe-7s-like"></i>
                     </button>
                 </div>
                 <div class="pro-same-action pro-cart">
-                    <n-link :to="`/product/${product.id}`" class="btn" v-if="product.variants && product.variants.length > 0">
-                        select option
+                    <n-link :to="localePath(`/product/${product.id}`)" class="btn" v-if="product.variants && product.variants.length > 0">
+                        {{ $t('select_option') }}
                     </n-link>
-                    <button class="btn" title="Add To Cart" @click="addToCart(product)" v-else>
+                    <button class="btn" :title="$t('add_to_cart')" @click="addToCart(product)" v-else>
                         <i class="pe-7s-cart"></i> 
-                        Add to cart
+                        {{ $t('add_to_cart') }}
                     </button>
                 </div>
                 <div class="pro-same-action pro-quickview">
-                    <button class="btn" title="Quick View" @click="onClick(product)">
+                    <button class="btn" :title="$t('quick_view')" @click="onClick(product)">
                         <i class="pe-7s-look"></i>
                     </button>
                 </div>
@@ -33,7 +33,7 @@
         </div>
         <div class="product-content text-center">
             <h3>
-                <n-link :to="`/product/${product.id}`">{{ productName }}</n-link>
+                <n-link :to="localePath(`/product/${product.id}`)">{{ productName }}</n-link>
             </h3>
             <!-- Rating can be dynamically mapped if API provides it -->
             <div class="product-rating" v-if="product.rating">
@@ -47,12 +47,12 @@
                 <p>{{ product.description }}</p>
                 <div class="pro-action d-flex align-items-center" >
                     <div class="pro-cart btn-hover">
-                        <n-link :to="`/product/${product.id}`" class="btn" v-if="product.variants && product.variants.length > 0">
-                            select option
+                        <n-link :to="localePath(`/product/${product.id}`)" class="btn" v-if="product.variants && product.variants.length > 0">
+                            {{ $t('select_option') }}
                         </n-link>
-                        <button class="btn" title="Add To Cart" @click="addToCart(product)" v-else>
+                        <button class="btn" :title="$t('add_to_cart')" @click="addToCart(product)" v-else>
                             <i class="pe-7s-cart"></i> 
-                            Add to cart
+                            {{ $t('add_to_cart') }}
                         </button>
                     </div>
                 </div>
@@ -94,15 +94,15 @@
                         product: product,
                         quantity: 1
                     })
-                    this.$notify({ type: 'success', text: 'Add to cart successfully!'})
+                    this.$notify({ type: 'success', text: this.$t('add_to_cart_success') })
                 } catch (error) {
-                    this.$notify({ type: 'error', text: 'Failed to add to cart'})
+                    this.$notify({ type: 'error', text: this.$t('error_occurred') || 'Failed to add to cart' })
                 }
             },
 
             addToWishlist(product) {
                 // Implement wishlist dispatch later
-                this.$notify({ title: 'Add to wishlist successfully!'})
+                this.$notify({ title: this.$t('add_to_wishlist_success') })
             },
 
             onClick(product) {

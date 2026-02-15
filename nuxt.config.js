@@ -70,7 +70,35 @@ export default {
     modules: [
         '@nuxtjs/style-resources',
         '@nuxtjs/axios',
+        '@nuxtjs/i18n',
     ],
+
+    i18n: {
+        locales: [
+            {
+                code: 'en',
+                iso: 'en-US',
+                file: 'en.json',
+                dir: 'ltr'
+            },
+            {
+                code: 'ar',
+                iso: 'ar-EG',
+                file: 'ar.json',
+                dir: 'rtl'
+            }
+        ],
+        defaultLocale: 'en',
+        langDir: 'locales/',
+        lazy: true,
+        strategy: 'prefix_except_default',
+        detectBrowserLanguage: {
+            useCookie: true,
+            cookieKey: 'i18n_redirected',
+            alwaysRedirect: true,
+            fallbackLocale: 'en'
+        }
+    },
 
     axios: {
         baseURL: process.env.API_BASE_URL || 'http://localhost:8000/api'

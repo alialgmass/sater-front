@@ -27,8 +27,8 @@
                     <n-link :to="`/product/${slugify(product.title)}`">{{ product.title }}</n-link>
                 </h3>
                 <div class="price-2">
-                    <span>${{ discountedPrice(product).toFixed(2) }}</span>
-                    <span class="old" v-if="product.discount > 0">${{ product.price.toFixed(2) }}</span>
+                    <span>${{ parseFloat(discountedPrice(product) || 0).toFixed(2) }}</span>
+                    <span class="old" v-if="product.discount > 0">${{ parseFloat(product.price || 0).toFixed(2) }}</span>
                 </div>
             </div>
             <div class="pro-wishlist-2">

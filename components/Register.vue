@@ -1,14 +1,14 @@
 <template>
     <div class="register-form">
         <form @submit.prevent="handleRegister">
-            <input type="text" v-model="name" placeholder="Name" required>
-            <input type="email" v-model="email" placeholder="Email" required>
-            <input type="password" v-model="password" placeholder="Password" required>
-            <input type="password" v-model="password_confirmation" placeholder="Confirm Password" required>
+            <input type="text" v-model="name" :placeholder="$t('name_placeholder')" required>
+            <input type="email" v-model="email" :placeholder="$t('email_placeholder')" required>
+            <input type="password" v-model="password" :placeholder="$t('password_placeholder')" required>
+            <input type="password" v-model="password_confirmation" :placeholder="$t('confirm_password_placeholder')" required>
             <div class="button-box">
                 <button type="submit" :disabled="loading">
-                    <span v-if="loading">Loading...</span>
-                    <span v-else>Register</span>
+                    <span v-if="loading">{{ $t('loading') }}</span>
+                    <span v-else>{{ $t('register_submit') }}</span>
                 </button>
             </div>
             <p v-if="error" class="text-danger mt-2">{{ error }}</p>

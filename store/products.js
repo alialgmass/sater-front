@@ -95,9 +95,16 @@ export const actions = {
 
     async fetchCategories({ commit }) {
         try {
-            const categories = await this.$productService.getCategories()
-            const categoryData = categories.data || categories
-            commit('SET_CATEGORIES', Array.isArray(categoryData) ? categoryData : [])
+            const response = await this.$productService.getCategories()
+            let categories = []
+
+            if (response.body && response.body.categories) {
+                categories = response.body.categories
+            } else {
+                categories = response.data || response
+            }
+
+            commit('SET_CATEGORIES', Array.isArray(categories) ? categories : [])
         } catch (error) {
             console.error('Failed to fetch categories', error)
         }

@@ -1,7 +1,7 @@
 <template>
     <div class="shop-page-wrapper">
         <HeaderWithTopbar containerClass="container" />
-        <Breadcrumb pageTitle="my-account" />
+        <Breadcrumb :pageTitle="$t('my_account')" />
         
         <div class="my-account-area pb-80 pt-100">
             <div class="container">
@@ -11,14 +11,14 @@
                             <div id="faq" class="panel-group">
                                 <div class="panel panel-default single-my-account">
                                     <div class="panel-heading my-account-title">
-                                        <h3 class="panel-title"><span>1 .</span> <a data-bs-toggle="collapse" href="#my-account-1">Edit your account information </a></h3>
+                                        <h3 class="panel-title"><span>1 .</span> <a data-bs-toggle="collapse" href="#my-account-1">{{ $t('edit_account_info') }} </a></h3>
                                     </div>
                                     <div id="my-account-1" class="panel-collapse collapse show" data-bs-parent="#faq">
                                         <div class="panel-body">
                                             <div class="myaccount-info-wrapper">
                                                 <div class="account-info-wrapper">
-                                                    <h4>My Account Information</h4>
-                                                    <h5>Your Personal Details</h5>
+                                                    <h4>{{ $t('account_information') }}</h4>
+                                                    <h5>{{ $t('personal_details') }}</h5>
                                                 </div>
                                                 <div class="row">
                                                     <div class="col-lg-6 col-md-6">
@@ -41,24 +41,24 @@
                                                     </div>
                                                     <div class="col-lg-6 col-md-6">
                                                         <div class="billing-info">
-                                                            <label>Telephone</label>
+                                                            <label>{{ $t('phone') }}</label>
                                                             <input type="text" v-model="profile.phone">
                                                         </div>
                                                     </div>
                                                     <div class="col-lg-6 col-md-6">
                                                         <div class="billing-info">
-                                                            <label>Fax</label>
+                                                            <label>{{ $t('fax') }}</label>
                                                             <input type="text" v-model="profile.fax">
                                                         </div>
                                                     </div>
                                                 </div>
                                                 <div class="billing-back-btn">
                                                     <div class="billing-back">
-                                                        <a href="#"><i class="fa fa-arrow-up"></i> back</a>
+                                                        <a href="#"><i class="fa fa-arrow-up"></i> {{ $t('back') }}</a>
                                                     </div>
                                                     <div class="billing-btn">
                                                         <button type="button" @click="updateProfile" :disabled="loading">
-                                                            {{ loading ? 'Updating...' : 'Continue' }}
+                                                            {{ loading ? $t('updating') : $t('continue') }}
                                                         </button>
                                                     </div>
                                                 </div>
@@ -68,14 +68,14 @@
                                 </div>
                                 <div class="panel panel-default single-my-account">
                                     <div class="panel-heading my-account-title">
-                                        <h3 class="panel-title"><span>2 .</span> <a data-bs-toggle="collapse" href="#my-account-2">Change your password </a></h3>
+                                        <h3 class="panel-title"><span>2 .</span> <a data-bs-toggle="collapse" href="#my-account-2">{{ $t('change_password') }} </a></h3>
                                     </div>
                                     <div id="my-account-2" class="panel-collapse collapse" data-bs-parent="#faq">
                                         <div class="panel-body">
                                             <div class="myaccount-info-wrapper">
                                                 <div class="account-info-wrapper">
-                                                    <h4>Change Password</h4>
-                                                    <h5>Your Password</h5>
+                                                    <h4>{{ $t('change_password') }}</h4>
+                                                    <h5>{{ $t('password') }}</h5>
                                                 </div>
                                                 <div class="row">
                                                     <div class="col-lg-12 col-md-12">
@@ -93,10 +93,10 @@
                                                 </div>
                                                 <div class="billing-back-btn">
                                                     <div class="billing-back">
-                                                        <a href="#"><i class="fa fa-arrow-up"></i> back</a>
+                                                        <a href="#"><i class="fa fa-arrow-up"></i> {{ $t('back') }}</a>
                                                     </div>
                                                     <div class="billing-btn">
-                                                        <button type="button" @click="changePassword">Continue</button>
+                                                        <button type="button" @click="changePassword">{{ $t('continue') }}</button>
                                                     </div>
                                                 </div>
                                             </div>
@@ -105,13 +105,13 @@
                                 </div>
                                 <div class="panel panel-default single-my-account">
                                     <div class="panel-heading my-account-title">
-                                        <h3 class="panel-title"><span>3 .</span> <a data-bs-toggle="collapse" href="#my-account-3">Modify your address book entries   </a></h3>
+                                        <h3 class="panel-title"><span>3 .</span> <a data-bs-toggle="collapse" href="#my-account-3">{{ $t('modify_address_book') }}   </a></h3>
                                     </div>
                                     <div id="my-account-3" class="panel-collapse collapse" data-bs-parent="#faq">
                                         <div class="panel-body">
                                             <div class="myaccount-info-wrapper">
                                                 <div class="account-info-wrapper">
-                                                    <h4>Address Book Entries</h4>
+                                                    <h4>{{ $t('address_book_entries') }}</h4>
                                                 </div>
                                                 <div class="entries-wrapper">
                                                     <div class="row">
@@ -132,10 +132,10 @@
                                                 </div>
                                                 <div class="billing-back-btn">
                                                     <div class="billing-back">
-                                                        <a href="#"><i class="fa fa-arrow-up"></i> back</a>
+                                                        <a href="#"><i class="fa fa-arrow-up"></i> {{ $t('back') }}</a>
                                                     </div>
                                                     <div class="billing-btn">
-                                                        <button type="submit">Continue</button>
+                                                        <button type="submit">{{ $t('continue') }}</button>
                                                     </div>
                                                 </div>
                                             </div>
@@ -195,6 +195,11 @@
                         }
                     }
                 }
+            }
+        },
+        async mounted() {
+            if (this.$store.state.auth.isAuthenticated) {
+                await this.$store.dispatch('auth/fetchProfile')
             }
         },
         methods: {

@@ -3,9 +3,9 @@
         <div class="container">
             <div class="description-review-wrapper">
                 <div class="description-review-topbar nav">
-                    <a data-bs-toggle="tab" href="#des-details1">Additional information</a>
-                    <a class="active" data-bs-toggle="tab" href="#des-details2">Description</a>
-                    <a data-bs-toggle="tab" href="#des-details3">Reviews (2)</a>
+                    <a data-bs-toggle="tab" href="#des-details1">{{ $t('additional_information') }}</a>
+                    <a class="active" data-bs-toggle="tab" href="#des-details2">{{ $t('description_tab') }}</a>
+                    <a data-bs-toggle="tab" href="#des-details3">{{ $t('reviews_tab') }} (2)</a>
                 </div>
                 <div class="tab-content description-review-bottom">
                     <div id="des-details2" class="tab-pane active">
@@ -17,10 +17,10 @@
                     <div id="des-details1" class="tab-pane ">
                         <div class="product-anotherinfo-wrapper">
                             <ul>
-                                <li><span>Weight</span> 400 g</li>
-                                <li><span>Dimensions</span>10 x 10 x 15 cm </li>
-                                <li><span>Materials</span> 60% cotton, 40% polyester</li>
-                                <li><span>Other Info</span> American heirloom jean shorts pug seitan letterpress</li>
+                                <li><span>{{ $t('weight') }}</span> 400 g</li>
+                                <li><span>{{ $t('dimensions') }}</span>10 x 10 x 15 cm </li>
+                                <li><span>{{ $t('materials') }}</span> 60% cotton, 40% polyester</li>
+                                <li><span>{{ $t('other_info') }}</span> American heirloom jean shorts pug seitan letterpress</li>
                             </ul>
                         </div>
                     </div>
@@ -47,7 +47,7 @@
                                                     </div>
                                                 </div>
                                                 <div class="review-left">
-                                                    <a href="#">Reply</a>
+                                                    <a href="#">{{ $t('reply') }}</a>
                                                 </div>
                                             </div>
                                             <div class="review-bottom">
@@ -74,7 +74,7 @@
                                                     </div>
                                                 </div>
                                                 <div class="review-left">
-                                                    <a href="#">Reply</a>
+                                                    <a href="#">{{ $t('reply') }}</a>
                                                 </div>
                                             </div>
                                             <div class="review-bottom">
@@ -86,11 +86,11 @@
                             </div>
                             <div class="col-lg-5">
                                 <div class="ratting-form-wrapper pl-50">
-                                    <h3>Add a Review</h3>
+                                    <h3>{{ $t('add_a_review') }}</h3>
                                     <div class="ratting-form">
                                         <form>
                                             <div class="star-box">
-                                                <span>Your rating:</span>
+                                                <span>{{ $t('your_rating') }}</span>
                                                 <div class="ratting-star">
                                                     <i class="fa fa-star"></i>
                                                     <i class="fa fa-star"></i>
@@ -102,18 +102,18 @@
                                             <div class="row">
                                                 <div class="col-md-6">
                                                     <div class="rating-form-style mb-10">
-                                                        <input placeholder="Name" type="text">
+                                                        <input :placeholder="$t('name_placeholder')" type="text">
                                                     </div>
                                                 </div>
                                                 <div class="col-md-6">
                                                     <div class="rating-form-style mb-10">
-                                                        <input placeholder="Email" type="email">
+                                                        <input :placeholder="$t('email_placeholder')" type="email">
                                                     </div>
                                                 </div>
                                                 <div class="col-md-12">
                                                     <div class="rating-form-style form-submit">
-                                                        <textarea name="Your Review" placeholder="Message"></textarea>
-                                                        <input type="submit" value="Submit">
+                                                        <textarea name="Your Review" :placeholder="$t('message_placeholder')"></textarea>
+                                                        <input type="submit" :value="$t('submit_button')">
                                                     </div>
                                                 </div>
                                             </div>

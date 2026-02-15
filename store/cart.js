@@ -1,5 +1,6 @@
 export const state = () => ({
     cart: [],
+    cartKey: null,
     loading: false,
     error: null
 })
@@ -7,6 +8,9 @@ export const state = () => ({
 export const mutations = {
     SET_CART(state, items) {
         state.cart = items
+    },
+    SET_CART_KEY(state, key) {
+        state.cartKey = key
     },
     SET_LOADING(state, loading) {
         state.loading = loading
@@ -21,7 +25,15 @@ export const actions = {
         commit('SET_LOADING', true)
         try {
             const response = await this.$cartService.getCart()
-            commit('SET_CART', response.items || [])
+            const data = response.body || response.data || response
+            const items = data.items || data.cart?.items || data
+            commit('SET_CART', Array.isArray(items) ? items : [])
+
+            // Also update cart key if returned in get cart
+            if (response.cart_key) {
+                commit('SET_CART_KEY', response.cart_key)
+                localStorage.setItem('cart_key', response.cart_key)
+            }
         } catch (error) {
             console.error('Fetch cart failed', error)
         } finally {
@@ -29,9 +41,15 @@ export const actions = {
         }
     },
 
-    async addToCart({ dispatch }, { product, quantity, variantId }) {
+    async addToCart({ commit, dispatch }, { product, quantity, variantId }) {
         try {
-            await this.$cartService.addToCart(product.id, quantity, variantId)
+            const response = await this.$cartService.addToCart(product.id, quantity, variantId)
+
+            if (response.cart_key) {
+                commit('SET_CART_KEY', response.cart_key)
+                localStorage.setItem('cart_key', response.cart_key)
+            }
+
             await dispatch('fetchCart')
         } catch (error) {
             console.error('Add to cart failed', error)
@@ -54,6 +72,13 @@ export const actions = {
             await dispatch('fetchCart')
         } catch (error) {
             console.error('Remove from cart failed', error)
+        }
+    },
+
+    initCart({ commit }) {
+        const cartKey = localStorage.getItem('cart_key')
+        if (cartKey) {
+            commit('SET_CART_KEY', cartKey)
         }
     }
 }

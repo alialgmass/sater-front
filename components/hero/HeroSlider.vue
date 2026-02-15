@@ -6,10 +6,10 @@
                     <div class="row">
                         <div class="col-sm-6">
                             <div class="slider-content slider-animation-1">
-                                <h3>Smart Products</h3>
-                                <h1>Winter Offer <br>2022 Collection</h1>
+                                <h3>{{ $t('smart_products') }}</h3>
+                                <h1>{{ $t('winter_offer') }} <br>{{ $t('collection_2026') }}</h1>
                                 <div class="slider-btn btn-hover">
-                                    <n-link to="/shop">SHOP NOW</n-link>
+                                    <n-link :to="localePath('/shop')">{{ $t('shop_now') }}</n-link>
                                 </div>
                             </div>
                         </div>
@@ -26,10 +26,10 @@
                     <div class="row">
                         <div class="col-sm-6">
                             <div class="slider-content slider-animation-1">
-                                <h3>Smart Products</h3>
-                                <h1>Summer Offer <br>2022 Collection</h1>
+                                <h3>{{ $t('smart_products') }}</h3>
+                                <h1>{{ $t('summer_offer') }} <br>{{ $t('collection_2026') }}</h1>
                                 <div class="slider-btn btn-hover">
-                                    <n-link to="/shop">SHOP NOW</n-link>
+                                    <n-link :to="localePath('/shop')">{{ $t('shop_now') }}</n-link>
                                 </div>
                             </div>
                         </div>

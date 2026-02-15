@@ -3,19 +3,15 @@ export default (context) => {
 
     return {
         checkout(orderData) {
-            return $axios.$post('/orders/checkout', orderData)
+            return $axios.$post('/v1/orders', orderData)
         },
 
         getOrders() {
-            return $axios.$get('/orders')
+            return $axios.$get('/v1/orders')
         },
 
-        getOrder(orderNumber) {
-            return $axios.$get(`/orders/${orderNumber}`)
+        getOrder(orderId) {
+            return $axios.$get(`/v1/orders/${orderId}`)
         },
-
-        trackOrder(orderNumber) {
-            return $axios.$get(`/orders/${orderNumber}/track`)
-        }
     }
 }

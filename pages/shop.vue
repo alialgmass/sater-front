@@ -1,7 +1,7 @@
 <template>
     <div class="shop-page-wrapper">
         <HeaderWithTopbar containerClass="container" />
-        <Breadcrumb pageTitle="shop grid standard" />
+        <Breadcrumb :pageTitle="$t('shop')" />
         
         <!-- product items wrapper -->
         <div class="shop-area pt-100 pb-100">
@@ -13,12 +13,12 @@
                             <div class="select-showing-wrap">
                                 <div class="shop-select">
                                     <select v-model="selectedPrice">
-                                        <option value="default">Default</option>
-                                        <option value="low2high">Price - Low to High</option>
-                                        <option value="high2low">Price - High to Low</option>
+                                        <option value="default">{{ $t('default_sort') }}</option>
+                                        <option value="low2high">{{ $t('price_low_high') }}</option>
+                                        <option value="high2low">{{ $t('price_high_low') }}</option>
                                     </select>
                                 </div>
-                                <p>Showing {{perPage * currentPage - perPage + 1}} to {{perPage * currentPage > filterItems.length ? filterItems.length : perPage * currentPage}} of {{filterItems.length}} result</p>
+                                <p>{{ $t('showing') }} {{perPage * currentPage - perPage + 1}} {{ $t('to') }} {{perPage * currentPage > filterItems.length ? filterItems.length : perPage * currentPage}} {{ $t('of') }} {{filterItems.length}} {{ $t('results') }}</p>
                             </div>
                             <div class="shop-tab">
                                 <button @click="layout = 'twoColumn'" :class="{ active : layout === 'twoColumn' }">
@@ -109,6 +109,7 @@
                     page: this.currentPage,
                     per_page: this.perPage,
                     category: this.$route.query.category,
+                    q: this.$route.query.q,
                     sort: this.selectedPrice === 'low2high' ? 'price_asc' : (this.selectedPrice === 'high2low' ? 'price_desc' : null)
                 }
                 await this.$store.dispatch('products/fetchProducts', params)
@@ -156,7 +157,7 @@
 
         head() {
             return {
-                title: "Shop grid standard"
+                title: this.$t('shop')
             }
         },
     };

@@ -36,8 +36,8 @@
                         <div class="product-details-content ml-70">
                             <h2>{{ product.title }}</h2>
                             <div class="product-details-price">
-                                <span>${{ discountedPrice(product).toFixed(2) }}</span>
-                                <span class="old" v-if="product.discount > 0">${{ product.price.toFixed(2) }}</span>
+                                <span>${{ parseFloat(discountedPrice(product) || 0).toFixed(2) }}</span>
+                                <span class="old" v-if="product.discount > 0">${{ parseFloat(product.price || 0).toFixed(2) }}</span>
                             </div>
                             <div class="pro-details-rating-wrap">
                                 <div class="pro-details-rating" v-if="product.rating == 5">

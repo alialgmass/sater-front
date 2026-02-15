@@ -9,6 +9,11 @@ export default function ({ $axios, redirect, store }) {
         if (token) {
             config.headers.common['Authorization'] = `Bearer ${token}`
         }
+
+        const cartKey = localStorage.getItem('cart_key')
+        if (cartKey) {
+            config.headers.common['X-Cart-Key'] = cartKey
+        }
         return config
     })
 

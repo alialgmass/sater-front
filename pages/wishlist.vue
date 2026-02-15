@@ -31,8 +31,8 @@
                                             <n-link :to="`/product/${product.id}`">{{ product.name }}</n-link>
                                         </td>
                                         <td class="product-price-cart">
-                                            <span class="amount">${{ (product.sale_price || product.price).toFixed(2) }}</span>
-                                            <del class="old" v-if="product.sale_price">${{ product.price.toFixed(2) }}</del>
+                                            <span class="amount">${{ parseFloat(product.sale_price || product.price || 0).toFixed(2) }}</span>
+                                            <del class="old" v-if="product.sale_price">${{ parseFloat(product.price || 0).toFixed(2) }}</del>
                                         </td>
                                         <td class="product-wishlist-cart">
                                             <button @click="addToCart(product)">add to cart</button>

@@ -6,7 +6,7 @@
                     <div class="product-details-slider">
                         <div class="product-details-img">
                             <div class="product-badges">
-                                <span class="product-label pink" v-if="product.new || product.is_new">New</span>
+                                <span class="product-label pink" v-if="product.new || product.is_new">{{ $t('new') }}</span>
                                 <span class="product-label purple" v-if="product.discount">-{{ product.discount }}%</span>
                             </div>
                             <swiper :options="swiperOptionTop" ref="swiperTop">
@@ -71,12 +71,12 @@
                                 <i class="fa fa-star-o"></i>
                                 <i class="fa fa-star-o"></i>
                             </div>
-                            <span><a href="#">{{ product.rating }} Reviews</a></span>
+                            <span><a href="#">{{ product.rating }} {{ $t('reviews') }}</a></span>
                         </div>
                         <p>{{ product.description }}</p>
                         <div class="pro-details-size-color" v-if="product.variation">
                             <div class="pro-details-color-wrap">
-                                <h6 class="label">Color</h6>
+                                <h6 class="label">{{ $t('color_label') }}</h6>
                                 <div class="pro-details-color-content">
                                     <label :class="item" class="radio" v-for="(item, index) in product.variation.color" :key="index" >
                                         <input type="radio" name="colorGroup"/>
@@ -85,7 +85,7 @@
                                 </div>
                             </div>
                             <div class="pro-details-size-wrap">
-                                <h6 class="label">Size</h6>
+                                <h6 class="label">{{ $t('size_label') }}</h6>
                                 <div class="pro-details-size-content">
                                     <label class="radio" v-for="(item, index) in product.variation.sizes" :key="index">
                                         <input type="radio" name="sizeGroup" />
@@ -101,7 +101,7 @@
                                 <button @click="increaseQuantity()" class="inc qtybutton">+</button>
                             </div>
                             <div class="pro-details-cart btn-hover">
-                                <button @click="addToCart(product)">Add To Cart</button>
+                                <button @click="addToCart(product)">{{ $t('add_to_cart') }}</button>
                             </div>
                             <div class="pro-details-wishlist">
                                 <button @click="addToWishlist(product)" title="wishlist"><i class="fa fa-heart-o"></i></button>
@@ -111,23 +111,23 @@
                             </div>
                         </div>
                         <div class="pro-details-meta">
-                            <span class="label">Categories:</span>
+                            <span class="label">{{ $t('categories_label') }}</span>
                             <ul v-if="product.category">
                                 <li>
-                                    <n-link :to="`/shop?category=${product.category.slug || product.category.id}`">{{ product.category.name || product.category.title || 'Category' }}</n-link>
+                                    <n-link :to="localePath(`/shop?category=${product.category.slug || product.category.id}`)">{{ product.category.name || product.category.title || 'Category' }}</n-link>
                                 </li>
                             </ul>
                             <ul v-else-if="product.categories">
                                 <li v-for="(category, index) in product.categories" :key="index">
-                                    <n-link :to="`/shop?category=${category.slug || category.id || category}`">{{ category.name || category.title || category }}</n-link>
+                                    <n-link :to="localePath(`/shop?category=${category.slug || category.id || category}`)">{{ category.name || category.title || category }}</n-link>
                                 </li>
                             </ul>
                         </div>
                         <div class="pro-details-meta">
-                            <span class="label">Tag:</span>
+                            <span class="label">{{ $t('tag_label') }}</span>
                             <ul>
                                 <li v-for="(tag, index) in product.tag" :key="index">
-                                    <n-link :to="`/shop?tag=${slugify(tag)}`">{{ tag }},</n-link>
+                                    <n-link :to="localePath(`/shop?tag=${slugify(tag)}`)">{{ tag }},</n-link>
                                 </li>
                             </ul>
                         </div>
@@ -224,9 +224,9 @@
                 const prod = {...product, cartQuantity: this.singleQuantity}
                 // for notification
                 if (this.$store.state.cart.find(el => product.id === el.id)) {
-                    this.$notify({ title: 'Already added to cart update with one' })
+                    this.$notify({ title: this.$t('already_in_cart') })
                 } else {
-                    this.$notify({ title: 'Add to cart successfully!'})
+                    this.$notify({ title: this.$t('add_to_cart_success') })
                 }
                 this.$store.dispatch('addToCartItem', prod)
             },
@@ -246,9 +246,9 @@
             addToWishlist(product) {
                 // for notification
                 if (this.$store.state.wishlist.find(el => product.id === el.id)) {
-                    this.$notify({ title: 'Already added to wishlist!' })
+                    this.$notify({ title: this.$t('already_in_wishlist') })
                 } else {
-                    this.$notify({ title: 'Add to wishlist successfully!'})
+                    this.$notify({ title: this.$t('add_to_wishlist_success') })
                 }
                 this.$store.dispatch('addToWishlist', product)
             },
@@ -256,9 +256,9 @@
             addToCompare(product) {
                 // for notification
                 if (this.$store.state.compare.find(el => product.id === el.id)) {
-                    this.$notify({ title: 'Already added to compare!' })
+                    this.$notify({ title: this.$t('already_in_compare') })
                 } else {
-                    this.$notify({ title: 'Add to compare successfully!'})
+                    this.$notify({ title: this.$t('add_to_compare_success') })
                 }
                 this.$store.dispatch('addToCompare', product)
             },

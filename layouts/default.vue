@@ -29,6 +29,8 @@
             },
         },
         mounted() {
+            this.$store.dispatch('auth/initAuth')
+            this.$store.dispatch('cart/initCart')
             this.$store.dispatch('products/fetchCategories')
             window.addEventListener("scroll", () => {
                 let scroll = window.scrollY;
@@ -40,6 +42,9 @@
                 }
             });
         },
+        head() {
+            return this.$nuxtI18nHead({ addSeoAttributes: true })
+        }
     };
 </script>
 

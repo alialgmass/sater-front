@@ -25,23 +25,23 @@
                 policies: [
                     {
                         icon: "/img/icon-img/support-1.png",
-                        title: "Free Shipping",
-                        subTitle: "Free shipping on all order"
+                        title: this.$t('free_shipping'),
+                        subTitle: this.$t('free_shipping_subtitle')
                     },
                     {
                         icon: "/img/icon-img/support-2.png",
-                        title: "Support 24/7",
-                        subTitle: "Support 24 hours a day"
+                        title: this.$t('support_24_7'),
+                        subTitle: this.$t('support_24_7_subtitle')
                     },
                     {
                         icon: "/img/icon-img/support-3.png",
-                        title: "Money Return",
-                        subTitle: "30 days for free return"
+                        title: this.$t('money_return'),
+                        subTitle: this.$t('money_return_subtitle')
                     },
                     {
                         icon: "/img/icon-img/support-4.png",
-                        title: "Order Discount",
-                        subTitle: "10% off on your first order"
+                        title: this.$t('order_discount'),
+                        subTitle: this.$t('order_discount_subtitle')
                     },
                 ]
             }

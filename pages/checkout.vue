@@ -1,7 +1,7 @@
 <template>
     <div class="cart-page-wrapper">
         <HeaderWithTopbar containerClass="container" />
-        <Breadcrumb pageTitle="checkout" />
+        <Breadcrumb :pageTitle="$t('checkout')" />
         
         <!-- checkout section start -->
         <div class="checkout-area pt-95 pb-100">
@@ -9,31 +9,31 @@
                 <div class="row" v-if="products.length > 0">
                     <div class="col-lg-7">
                         <div class="billing-info-wrap">
-                            <h3>Billing Details</h3>
+                            <h3>{{ $t('billing_details') }}</h3>
                             <div class="row">
                                  <div class="col-lg-6 col-md-6">
                                     <div class="billing-info mb-20">
-                                        <label>First Name</label>
+                                        <label>{{ $t('first_name') }}</label>
                                         <input type="text" v-model="form.first_name">
                                     </div>
                                 </div>
                                 <div class="col-lg-6 col-md-6">
                                     <div class="billing-info mb-20">
-                                        <label>Last Name</label>
+                                        <label>{{ $t('last_name') }}</label>
                                         <input type="text" v-model="form.last_name">
                                     </div>
                                 </div>
                                 <div class="col-lg-12">
                                     <div class="billing-info mb-20">
-                                        <label>Company Name</label>
+                                        <label>{{ $t('company_name') }}</label>
                                         <input type="text" v-model="form.company_name">
                                     </div>
                                 </div>
                                 <div class="col-lg-12">
                                     <div class="billing-select mb-20">
-                                        <label>Country</label>
+                                        <label>{{ $t('country') }}</label>
                                         <select v-model="form.country">
-                                            <option>Select a country</option>
+                                            <option>{{ $t('select_country') }}</option>
                                             <option>Azerbaijan</option>
                                             <option>Bahamas</option>
                                             <option>Bahrain</option>
@@ -44,86 +44,86 @@
                                 </div>
                                 <div class="col-lg-12">
                                     <div class="billing-info mb-20">
-                                        <label>Street Address</label>
-                                        <input class="billing-address" placeholder="House number and street name" type="text" v-model="form.street_address">
-                                        <input placeholder="Apartment, suite, unit etc." type="text" v-model="form.apartment">
+                                        <label>{{ $t('street_address') }}</label>
+                                        <input class="billing-address" :placeholder="$t('house_placeholder')" type="text" v-model="form.street_address">
+                                        <input :placeholder="$t('apartment_placeholder')" type="text" v-model="form.apartment">
                                     </div>
                                 </div>
                                 <div class="col-lg-12">
                                     <div class="billing-info mb-20">
-                                        <label>Town / City</label>
+                                        <label>{{ $t('city') }}</label>
                                         <input type="text" v-model="form.city">
                                     </div>
                                 </div>
                                 <div class="col-lg-6 col-md-6">
                                     <div class="billing-info mb-20">
-                                        <label>State / County</label>
+                                        <label>{{ $t('state') }}</label>
                                         <input type="text" v-model="form.state">
                                     </div>
                                 </div>
                                 <div class="col-lg-6 col-md-6">
                                     <div class="billing-info mb-20">
-                                        <label>Postcode / ZIP</label>
+                                        <label>{{ $t('postcode') }}</label>
                                         <input type="text" v-model="form.postcode">
                                     </div>
                                 </div>
                                 <div class="col-lg-6 col-md-6">
                                     <div class="billing-info mb-20">
-                                        <label>Phone</label>
+                                        <label>{{ $t('phone') }}</label>
                                         <input type="text" v-model="form.phone">
                                     </div>
                                 </div>
                                 <div class="col-lg-6 col-md-6">
                                     <div class="billing-info mb-20">
-                                        <label>Email Address</label>
+                                        <label>{{ $t('email_address') }}</label>
                                         <input type="text" v-model="form.email">
                                     </div>
                                 </div>
                             </div>
                             <div class="additional-info-wrap">
-                                <h4>Additional information</h4>
+                                <h4>{{ $t('additional_info') }}</h4>
                                 <div class="additional-info">
-                                    <label>Order notes</label>
-                                    <textarea placeholder="Notes about your order, e.g. special notes for delivery. " name="message" v-model="form.notes"></textarea>
+                                    <label>{{ $t('order_notes') }}</label>
+                                    <textarea :placeholder="$t('order_notes_placeholder')" name="message" v-model="form.notes"></textarea>
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div class="col-lg-5">
                         <div class="your-order-area">
-                            <h3>Your order</h3>
+                            <h3>{{ $t('your_order') }}</h3>
                             <div class="your-order-wrap gray-bg-4">
                                 <div class="your-order-product-info">
                                     <div class="your-order-top">
                                         <ul>
-                                            <li>Product</li>
-                                            <li>Total</li>
+                                            <li>{{ $t('product') || 'Product' }}</li>
+                                            <li>{{ $t('total') }}</li>
                                         </ul>
                                     </div>
                                     <div class="your-order-middle">
                                         <ul>
                                             <li v-for="(item, index) in products" :key="index">
-                                                <span class="order-middle-left">{{ item.product ? item.product.name : 'Product' }}  X  {{ item.quantity }}</span> <span class="order-price">${{ (item.price * item.quantity).toFixed(2) }}</span>
+                                                <span class="order-middle-left">{{ item.product ? item.product.name : 'Product' }}  X  {{ item.quantity }}</span> <span class="order-price">${{ (parseFloat(item.price || 0) * item.quantity).toFixed(2) }}</span>
                                             </li>
                                         </ul>
                                     </div>
                                     <div class="your-order-bottom">
                                         <ul>
-                                            <li class="your-order-shipping">Shipping</li>
-                                            <li>Free shipping</li>
+                                            <li class="your-order-shipping">{{ $t('shipping') }}</li>
+                                            <li>{{ $t('free_shipping_label') }}</li>
                                         </ul>
                                     </div>
                                     <div class="your-order-total">
                                         <ul>
-                                            <li class="order-total">Total</li>
-                                            <li>${{ total.toFixed(2) }}</li>
+                                            <li class="order-total">{{ $t('total') }}</li>
+                                            <li>${{ parseFloat(total || 0).toFixed(2) }}</li>
                                         </ul>
                                     </div>
                                 </div>
                             </div>
                             <div class="place-order mt-25">
                                 <button class="btn-hover" @click="placeOrder" :disabled="loading">
-                                    {{ loading ? 'Placing Order...' : 'Place Order' }}
+                                    {{ loading ? $t('placing_order') : $t('place_order') }}
                                 </button>
                             </div>
                         </div>
@@ -135,8 +135,8 @@
                             <div class="icon">
                                 <i class="pe-7s-cash"></i>
                             </div>
-                            <h4>No items found in cart to checkout</h4>
-                            <n-link to="/shop" class="empty-cart__button">Shop Now</n-link>
+                            <h4>{{ $t('empty_cart_message') }}</h4>
+                            <n-link :to="localePath('/shop')" class="empty-cart__button">{{ $t('shop_now') }}</n-link>
                         </div>
                     </div>
                 </div>

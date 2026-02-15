@@ -1,7 +1,7 @@
 <template>
     <div class="blog-page-wrapper">
         <HeaderWithTopbar containerClass="container" />
-        <Breadcrumb pageTitle="blog standard" />
+        <Breadcrumb :pageTitle="$t('blog_standard')" />
         
         <div class="blog-area pt-100 pb-100">
             <div class="container">
@@ -61,7 +61,7 @@
         },
         head() {
             return {
-                title: "Blog Standard"
+                title: this.$t('blog_standard')
             }
         }
     };
