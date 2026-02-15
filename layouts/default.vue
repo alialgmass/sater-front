@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div :class="{'rtl-layout': $i18n.locale === 'ar', 'ltr-layout': $i18n.locale !== 'ar'}">
         <Nuxt />
 
         <client-only>

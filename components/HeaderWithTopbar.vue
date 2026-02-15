@@ -12,19 +12,6 @@
                                     </option>
                                 </select>
                             </div>
-                            <div class="same-language-currency use-style">
-                                <select name="currency">
-                                    <option value="usd">USD</option>
-                                    <option value="eur">EUR</option>
-                                    <option value="rup">Rup</option>
-                                </select>
-                            </div>
-                            <div class="same-language-currency">
-                                <p>Call: <a href="callto:3965410">3965410</a></p>
-                            </div>
-                        </div>
-                        <div class="header-offer">
-                            <p>Free delivery on order over <span>$200</span></p>
                         </div>
                     </div>
                 </div>
@@ -35,7 +22,7 @@
                         <div class="col-lg-2 col-md-6 col-4">
                             <div class="logo">
                                 <n-link to="/">
-                                    <img src="/img/logo/logo.png" alt="flone logo">
+                                    <img src="/img/logo/logo.png" alt="Sater logo" class="img-fluid" style="max-height: 50px;">
                                 </n-link>
                             </div>
                         </div>

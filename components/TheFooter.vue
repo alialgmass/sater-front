@@ -6,7 +6,7 @@
                     <div class="copyright mb-30">
                         <div class="footer-logo">
                             <n-link to="/">
-                                <img src="/img/logo/logo.png" alt="logo">
+                                <img src="/img/logo/logo.png" alt="Sater logo" style="max-height: 40px;">
                             </n-link>
                         </div>
                         <p>© 2026 <a href="#" target="_blank">Flone</a>.<br> {{ $t('all_rights_reserved') }}</p>
