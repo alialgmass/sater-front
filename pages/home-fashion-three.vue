@@ -1,6 +1,6 @@
 <template>
     <div class="home-three-wrapper">
-        <TheHeader />
+        <HeaderWithTopbar containerClass="container-fluid" />
         <HeroSliderThree />
         <ServicePolicyTwo />
         <ProductWrapperThree />
@@ -12,7 +12,7 @@
 <script>
     export default {
         components: {
-            TheHeader: () => import('@/components/TheHeader'),
+            HeaderWithTopbar: () => import('@/components/HeaderWithTopbar'),
             HeroSliderThree: () => import('@/components/hero/HeroSliderThree'),
             ServicePolicyTwo: () => import('@/components/policy/ServicePolicyTwo'),
             ProductWrapperThree: () => import('@/components/product/ProductWrapperThree'),

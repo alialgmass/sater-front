@@ -1,9 +1,12 @@
 <template>
     <ul class='mobile-menu'>
         <li v-for='(link, i) in menus' :key='i'>
-            <n-link :to="link.url">
+            <n-link :to="localePath(link.url)" v-if="link.url">
                 {{ link.title }}
             </n-link>
+            <a href="javascript:void(0)" v-else @click="handleAction(link.action)">
+                {{ link.title }}
+            </a>
             <span class='submenu-toggle' v-if="link.submenu">
                 <i class="pe-7s-angle-down"></i>
             </span>
@@ -15,7 +18,7 @@
                     </span> 
                     <ul class="submenu" v-if="link.submenu">
                         <li v-for='(link, i) in link.submenu' :key='i'>
-                            <n-link :to="link.url"> {{ link.title }} </n-link>
+                            <n-link :to="localePath(link.url)"> {{ link.title }} </n-link>
                         </li>
                     </ul>
                 </li>
@@ -28,10 +31,20 @@
     export default {
         data() {
             return {
-                menus: [
+            }
+        },
+        computed: {
+            categories() {
+                return this.$store.getters.categoryList
+            },
+            isAuthenticated() {
+                return this.$store.getters['auth/isAuthenticated']
+            },
+            menus() {
+                return [
                     {
                         url: '/',
-                        title: 'Home',
+                        title: this.$t('home'),
                         submenu: [
                             {
                                 url: '',
@@ -95,133 +108,95 @@
                     },
                     {
                         url: '/shop',
-                        title: 'Shop',
+                        title: this.$t('shop'),
                         submenu: [
                             {
-                                url: '',
-                                title: 'shop layout',
-                                submenu: [
-                                    {
-                                        url: '/shop',
-                                        title: 'shop grid standard',
-                                    },
-                                    {
-                                        url: '/shop-grid-two-column',
-                                        title: 'shop grid two column',
-                                    },
-                                    {
-                                        url: '/shop-grid-no-sidebar',
-                                        title: 'shop grid no sidebar',
-                                    },
-                                    {
-                                        url: '/shop-grid-full-width',
-                                        title: 'shop grid full width',
-                                    },
-                                    {
-                                        url: '/shop-grid-right-sidebar',
-                                        title: 'shop grid right sidebar',
-                                    },
-                                    {
-                                        url: '/shop-list-standard',
-                                        title: 'shop list standard',
-                                    },
-                                    {
-                                        url: '/shop-list-full-width',
-                                        title: 'shop list full width',
-                                    },
-                                ]
-                            },
-                            {
-                                url: '',
-                                title: 'product details',
-                                submenu: [
-                                    {
-                                        url: '/product/crew-ventile-coat-one',
-                                        title: 'product variation',
-                                    },
-                                    {
-                                        url: '/product/product-affiliate',
-                                        title: 'product affiliate',
-                                    },
-                                    {
-                                        url: '/product/women-winter-overcoat-one',
-                                        title: 'product simple',
-                                    }
-                                ]
+                                url: '/shop',
+                                title: this.$t('all_categories'),
+                                submenu: this.categories.map(category => ({
+                                    url: this.localePath(`/shop?category=${category.slug || category}`),
+                                    title: category.name || category
+                                }))
                             }
                         ]
                     },
                     {
                         url: '',
-                        title: 'Pages',
+                        title: this.$t('pages'),
                         submenu: [
                             {
                                 url: '/cart',
-                                title: 'Cart',
+                                title: this.$t('cart'),
                             },
                             {
                                 url: '/checkout',
-                                title: 'Checkout',
+                                title: this.$t('checkout'),
                             },
                             {
                                 url: '/wishlist',
-                                title: 'Wishlist',
+                                title: this.$t('wishlist'),
                             },
                             {
                                 url: '/compare',
-                                title: 'Compare',
+                                title: this.$t('compare'),
                             },
                             {
                                 url: '/about',
-                                title: 'About us',
+                                title: this.$t('about_us'),
                             },
                             {
                                 url: '/my-account',
-                                title: 'My Account',
+                                title: this.$t('my_account'),
                             },
-                            {
-                                url: '/login-register',
-                                title: 'Login / Register',
-                            },
+                                this.isAuthenticated ? 
+                                {
+                                    url: '',
+                                    title: this.$t('logout'),
+                                    action: 'logout'
+                                } : 
+                                {
+                                    url: '/login-register',
+                                    title: this.$t('login_register_tab'),
+                                },
                             {
                                 url: '/contact',
-                                title: 'Contact us',
+                                title: this.$t('contact'),
                             },
                             {
                                 url: '/privacy-policy',
-                                title: 'Privacy Policy',
+                                title: this.$t('privacy_policy'),
                             },
                             {
                                 url: '/terms-conditions',
-                                title: 'Terms & Conditions',
+                                title: this.$t('terms_conditions'),
                             },
                         ]
                     },
                     {
                         url: '/blog',
-                        title: 'Blog',
+                        title: this.$t('blog'),
                         submenu: [
                             {
                                 url: '/blog',
-                                title: 'blog standard',
+                                title: this.$t('blog_standard'),
                             },
                             {
-                                url: '/blog/blog-right-sidebar',
-                                title: 'blog right sidebar',
+                                url: '/blog/blog-sidebar',
+                                title: this.$t('blog_sidebar'),
                             },
                             {
-                                url: '/blog/blog-without-sidebar',
-                                title: 'blog no sidebar',
+                                url: '/blog/blog-no-sidebar',
+                                title: this.$t('blog_no_sidebar'),
                             },
                             {
-                                url: '/blog/a-guide-to-latest-trends-product',
-                                title: 'blog details',
+                                url: '/blog/blog-details',
+                                title: this.$t('blog_details'),
                             }
                         ]
                     },
                     {
                         url: '/contact',
-                        title: 'Contact',
+                        title: this.$t('contact'),
                     }
                 ]
             }
@@ -263,6 +238,23 @@
                     }
                 })
             })
+        },
+
+        methods: {
+            handleAction(action) {
+                if (action === 'logout') {
+                    this.logout()
+                }
+            },
+            async logout() {
+                try {
+                    await this.$store.dispatch('auth/logout')
+                    this.$notify({ type: 'success', text: 'Logged out successfully' })
+                    this.$router.push('/')
+                } catch (error) {
+                    console.error('Logout failed', error)
+                }
+            }
         }
     }
 </script>

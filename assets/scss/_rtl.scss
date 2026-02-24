@@ -1,0 +1,246 @@
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;500;600;700;800;900&display=swap');
+
+[dir="rtl"] body,
+.rtl-layout {
+    font-family: 'Cairo', sans-serif !important;
+    text-align: right;
+    direction: rtl;
+
+
+    // Common Overrides
+    .text-left {
+        text-align: right !important;
+    }
+
+    .text-right {
+        text-align: left !important;
+    }
+
+    .float-left {
+        float: right !important;
+    }
+
+    .float-right {
+        float: left !important;
+    }
+
+    // Navigation and Header
+    .main-menu {
+        nav {
+            ul {
+                li {
+                    margin-left: 20px;
+                    margin-right: 0;
+
+                    &:last-child {
+                        margin-left: 0;
+                    }
+
+                    ul.submenu {
+                        left: auto;
+                        right: 0;
+                        text-align: right;
+                    }
+                }
+            }
+        }
+    }
+
+    .header-right-wrap {
+        justify-content: flex-start;
+
+        .same-style {
+            margin-left: 0;
+            margin-right: 20px;
+
+            &:first-child {
+                margin-right: 0;
+            }
+
+            .count-style {
+                right: auto;
+                left: -8px;
+            }
+
+            .minicart-wrapper {
+                right: auto;
+                left: 0;
+                text-align: right;
+
+                .shopping-cart-content {
+                    .shopping-cart-title {
+                        padding-right: 0;
+                        padding-left: 10px;
+                    }
+
+                    .shopping-cart-total {
+                        h4 {
+                            span {
+                                float: left;
+                            }
+                        }
+                    }
+                }
+            }
+
+            .account-dropdown {
+                right: auto;
+                left: 0;
+                text-align: right;
+            }
+        }
+    }
+
+    // Slider
+    .nav-style-1 {
+        .hero-slider-nav {
+            left: auto;
+            right: 80px;
+
+            @media #{$xl-layout, $lg-layout, $md-layout, $xs-layout} {
+                right: 15px;
+                left: auto;
+            }
+
+            &.swiper-button-next {
+                right: auto;
+                left: 80px;
+
+                @media #{$xl-layout, $lg-layout, $md-layout, $xs-layout} {
+                    left: 15px;
+                    right: auto;
+                }
+            }
+        }
+
+        &.nav-style-3 {
+            .hero-slider-nav {
+                right: auto;
+                left: 0;
+
+                &.swiper-button-prev {
+                    left: 60px;
+                    right: auto;
+                }
+            }
+        }
+    }
+
+    // Breadcrumb
+    .breadcrumb-list {
+        ul {
+            li {
+                margin-left: 15px;
+                margin-right: 0;
+
+                &:after {
+                    content: "/";
+                    margin-right: 15px;
+                    margin-left: 0;
+                }
+
+                &:last-child {
+                    margin-left: 0;
+
+                    &:after {
+                        display: none;
+                    }
+                }
+            }
+        }
+    }
+
+    // Product Grid
+    .product-wrap {
+        .product-img {
+            .product-label {
+                left: auto;
+                right: 20px;
+            }
+
+            .product-action {
+                left: auto;
+                right: 0;
+            }
+        }
+    }
+
+    // Sidebar
+    .sidebar-widget {
+        .sidebar-widget-list {
+            li {
+                padding-left: 0;
+                padding-right: 25px;
+
+                &:before {
+                    left: auto;
+                    right: 0;
+                }
+            }
+        }
+    }
+
+    // Cart / Wishlist / Compare Tables
+    .table-content table {
+        text-align: right;
+
+        thead tr th {
+            text-align: right;
+        }
+    }
+
+    // Buttons and Icons
+    .fa-angle-right:before {
+        content: "\f104"; // fa-angle-left
+    }
+
+    .fa-angle-left:before {
+        content: "\f105"; // fa-angle-right
+    }
+
+    .pe-7s-angle-right:before {
+        content: "\e686"; // pe-7s-angle-left
+    }
+
+    .pe-7s-angle-left:before {
+        content: "\e684"; // pe-7s-angle-right
+    }
+
+    // Checkout components
+    .billing-info-wrap {
+        h3 {
+            text-align: right;
+        }
+    }
+
+    .your-order-area {
+        h3 {
+            text-align: right;
+        }
+    }
+
+    // Utility Class Flips
+    @for $i from 0 through 150 {
+        @if ($i % 5==0 or $i < 45) {
+            .ml-#{$i} {
+                margin-left: 0 !important;
+                margin-right: #{$i}px !important;
+            }
+
+            .mr-#{$i} {
+                margin-right: 0 !important;
+                margin-left: #{$i}px !important;
+            }
+
+            .pl-#{$i} {
+                padding-left: 0 !important;
+                padding-right: #{$i}px !important;
+            }
+
+            .pr-#{$i} {
+                padding-right: 0 !important;
+                padding-left: #{$i}px !important;
+            }
+        }
+    }
+}

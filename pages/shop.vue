@@ -1,7 +1,7 @@
 <template>
     <div class="shop-page-wrapper">
         <HeaderWithTopbar containerClass="container" />
-        <Breadcrumb pageTitle="shop grid standard" />
+        <Breadcrumb :pageTitle="$t('shop')" />
         
         <!-- product items wrapper -->
         <div class="shop-area pt-100 pb-100">
@@ -13,12 +13,12 @@
                             <div class="select-showing-wrap">
                                 <div class="shop-select">
                                     <select v-model="selectedPrice">
-                                        <option value="default">Default</option>
-                                        <option value="low2high">Price - Low to High</option>
-                                        <option value="high2low">Price - High to Low</option>
+                                        <option value="default">{{ $t('default_sort') }}</option>
+                                        <option value="low2high">{{ $t('price_low_high') }}</option>
+                                        <option value="high2low">{{ $t('price_high_low') }}</option>
                                     </select>
                                 </div>
-                                <p>Showing {{perPage * currentPage - perPage + 1}} to {{perPage * currentPage > filterItems.length ? filterItems.length : perPage * currentPage}} of {{filterItems.length}} result</p>
+                                <p>{{ $t('showing') }} {{perPage * currentPage - perPage + 1}} {{ $t('to') }} {{perPage * currentPage > getTotal ? getTotal : perPage * currentPage}} {{ $t('of') }} {{getTotal}} {{ $t('results') }}</p>
                             </div>
                             <div class="shop-tab">
                                 <button @click="layout = 'twoColumn'" :class="{ active : layout === 'twoColumn' }">
@@ -37,7 +37,7 @@
                         <!-- shop product -->
                         <div class="shop-bottom-area mt-35">
                             <div class="row product-layout" :class="{ 'list': layout === 'list', 'grid three-column': layout === 'threeColumn', 'grid two-column': layout === 'twoColumn' }">
-                                <div class="col-xl-4 col-sm-6" v-for="(product, index) in getItems" :key="index" >
+                                <div class="col-xl-4 col-sm-6" v-for="(product, index) in products" :key="index" >
                                     <ProductGridItem :product="product" :layout="layout"  />
                                 </div>
                             </div>
@@ -45,7 +45,7 @@
                         <!-- end shop product -->
 
                         <div v-if="getPaginateCount > 1">
-                            <pagination class="pro-pagination-style shop-pagination mt-30" v-model="currentPage" :per-page="perPage" :records="filterItems.length" @paginate="paginateClickCallback" :page-count="getPaginateCount" />
+                            <pagination class="pro-pagination-style shop-pagination mt-30" v-model="currentPage" :per-page="perPage" :records="getTotal" @paginate="paginateClickCallback" :page-count="getPaginateCount" />
                         </div>
                     </div>
 
@@ -88,128 +88,73 @@
 
         computed: {
             products() {
-                return this.$store.getters.getProducts
-            },
-
-            getItems() {
-                let start = (this.currentPage - 1) * this.perPage;
-                let end = this.currentPage * this.perPage;
-                return this.filterItems.slice(start, end);
+                return this.$store.state.products.products
             },
             getPaginateCount() {
-                return Math.ceil(this.filterItems.length / this.perPage);
+                return this.$store.state.products.pagination ? this.$store.state.products.pagination.last_page : 1;
             },
+            getTotal() {
+                return this.$store.state.products.pagination ? this.$store.state.products.pagination.total : 0;
+            }
         },
 
         mounted(){
-            this.updateProductData()
+            this.fetchProducts()
+            this.$store.dispatch('products/fetchAttributes')
+            this.$store.dispatch('products/fetchCategories')
         },
 
         methods: {
+            async fetchProducts() {
+                const query = this.$route.query;
+                const params = {
+                    page: query.page || 1,
+                    per_page: this.perPage,
+                    category_id: query.category_id,
+                    color_id: query.color_id,
+                    size_id: query.size_id,
+                    tag_id: query.tag_id,
+                    min_price: query.min_price,
+                    max_price: query.max_price,
+                    on_sale: query.on_sale,
+                    q: query.q,
+                    sort: this.selectedPrice === 'low2high' ? 'price_asc' : (this.selectedPrice === 'high2low' ? 'price_desc' : null)
+                }
+                
+                // Cleanup undefined params
+                Object.keys(params).forEach(key => params[key] === undefined && delete params[key]);
+
+                await this.$store.dispatch('products/fetchProducts', params)
+                this.currentPage = Number(query.page || 1)
+            },
+
             paginateClickCallback(page) {
-                this.currentPage = Number(page);
-            },
-
-            updateProductData(){
-                this.paginateClickCallback(1);
-
-                const categoryName = this.$route.query.category;
-                const sizeName = this.$route.query.size;
-                const colorName = this.$route.query.color;
-                const tagName = this.$route.query.tag;
-                
-                if( Object.keys(this.$route.query).length === 0){
-                    this.filterItems = [...this.products]
-                }
-                
-                if(categoryName && this.prevSelectedCategoryName !== categoryName){
-                    if(Boolean(categoryName) === false || categoryName === this.slugify("all categories")){
-                        this.filterItems = [...this.products]
+                this.$router.push({
+                    path: this.$route.path,
+                    query: {
+                        ...this.$route.query,
+                        page: page
                     }
-                    else {
-                        const resultData = this.products.filter((item) => this.slugify(item.category).includes(categoryName));
-                        this.filterItems = [];
-                        this.filterItems.push(...resultData);
-                    }
-                }
-        
-                if(colorName && this.prevSelectedColorName !== colorName){
-                    if(Boolean(colorName) === false || colorName === this.slugify("all colors")){
-                        this.filterItems = [...this.products]
-                    }
-                    else {
-                        const resultData = this.products.filter((item) => item.variation?.color.includes(colorName));
-                        this.filterItems = [];
-                        this.filterItems.push(...resultData);
-                    }
-                }
-
-                if(sizeName && this.prevSelectedSizeName !== sizeName){
-                    if(Boolean(sizeName) === false || sizeName === this.slugify("all sizes")){
-                        this.filterItems = [...this.products]
-                    }
-                    else {
-                        const resultData = this.products.filter((item) => item.variation?.sizes.includes(sizeName));
-                        this.filterItems = [];
-                        this.filterItems.push(...resultData);
-                    }
-                }
-            
-                if(tagName && this.prevSelectedTagName !== tagName){
-                    if(tagName){
-                        const resultData = this.products.filter((item) => this.slugify(item.tag).includes(tagName));
-                        this.filterItems = [];
-                        this.filterItems.push(...resultData);
-                    }
-                    else {
-                        this.filterItems = [...this.products]
-                    } 
-                }
-                
-                this.prevSelectedCategoryName = categoryName;
-                this.prevSelectedColorName = colorName;
-                this.prevSelectedSizeName = sizeName;
-                this.prevSelectedTagName = tagName;
-            },
-
-            discountedPrice(product) {
-                return product.price - (product.price * product.discount / 100)
-            },
-
-            slugify(text) {
-                return text
-                    .toString()
-                    .toLowerCase()
-                    .replace(/\s+/g, "-") // Replace spaces with -
-                    .replace(/[^\w-]+/g, "") // Remove all non-word chars
-                    .replace(/--+/g, "-") // Replace multiple - with single -
-                    .replace(/^-+/, "") // Trim - from start of text
-                    .replace(/-+$/, ""); // Trim - from end of text
+                })
             }
         },
 
         watch: {
-            $route(){
-                this.updateProductData()
+            '$route.query': {
+                deep: true,
+                handler() {
+                    this.fetchProducts()
+                }
             },
 
             selectedPrice(){
-                switch (this.selectedPrice) {
-                    case "low2high":
-                        this.filterItems =  this.filterItems.sort((a, b)=> this.discountedPrice(a) - this.discountedPrice(b))
-                        break;
-                    case "high2low":
-                        this.filterItems =  this.filterItems.sort((a, b)=> this.discountedPrice(b) -  this.discountedPrice(a))
-                        break;
-                    default:
-                        this.filterItems = [...this.products]
-                }
+                this.fetchProducts()
             }
         },
 
         head() {
             return {
-                title: "Shop grid standard"
+                title: this.$t('shop')
             }
         },
     };

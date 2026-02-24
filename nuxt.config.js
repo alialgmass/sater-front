@@ -4,7 +4,12 @@ export default {
     },
 
     target: 'static', // default is 'server'
-    
+
+    // Runtime configuration for API base URL
+    publicRuntimeConfig: {
+        apiBase: process.env.API_BASE_URL || 'http://localhost:8000'
+    },
+
     // Global page headers (https://go.nuxtjs.dev/config-head)
     head: {
         title: 'Flone - VueJS eCommerce Template',
@@ -17,7 +22,7 @@ export default {
         link: [
             { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
         ],
-        
+
     },
 
     // Global CSS (https://go.nuxtjs.dev/config-css)
@@ -28,21 +33,30 @@ export default {
 
     // Plugins to run before rendering page (https://go.nuxtjs.dev/config-plugins)
     plugins: [
+        '~/plugins/composition-api.js',
         '~/plugins/vue-awesome-swiper.js',
         '~/plugins/vuejs-pagiante.js',
         '~/plugins/observe-visibility.js',
         '~/plugins/persistedState.client.js',
-        { 
-            src: '~/plugins/bootstrap.js', 
+        {
+            src: '~/plugins/bootstrap.js',
             mode: 'client'
         },
         {
-            src: '~/plugins/vue-js-modal', 
+            src: '~/plugins/vue-js-modal',
             mode: 'client'
         },
-        { 
-            src: '~/plugins/notifications-client.js', 
-            mode: 'client' 
+        {
+            src: '~/plugins/notifications-client.js',
+            mode: 'client'
+        },
+        {
+            src: '~/plugins/api.js',
+            mode: 'client'
+        },
+        {
+            src: '~/plugins/services.js',
+            mode: 'client'
         },
     ],
 
@@ -57,7 +71,39 @@ export default {
     modules: [
         '@nuxtjs/style-resources',
         '@nuxtjs/axios',
+        '@nuxtjs/i18n',
     ],
+
+    i18n: {
+        locales: [
+            {
+                code: 'en',
+                iso: 'en-US',
+                file: 'en.json',
+                dir: 'ltr'
+            },
+            {
+                code: 'ar',
+                iso: 'ar-EG',
+                file: 'ar.json',
+                dir: 'rtl'
+            }
+        ],
+        defaultLocale: 'en',
+        langDir: 'locales/',
+        lazy: true,
+        strategy: 'prefix_except_default',
+        detectBrowserLanguage: {
+            useCookie: true,
+            cookieKey: 'i18n_redirected',
+            alwaysRedirect: true,
+            fallbackLocale: 'en'
+        }
+    },
+
+    axios: {
+        baseURL: process.env.API_BASE_URL || 'http://localhost:8000/api'
+    },
 
     styleResources: {
         scss: [
@@ -68,7 +114,7 @@ export default {
     // Build Configuration (https://go.nuxtjs.dev/config-build)
     build: {
         extractCSS: true,
-        extend (config, ctx) {
+        extend(config, ctx) {
         },
         babel: {
             compact: true,

@@ -1,31 +1,31 @@
 <template>
     <div class="product-wrap mb-30">
         <div class="product-img">
-            <n-link :to="`/product/${slugify(product.title)}`">
-                <img class="default-img" :src="product.images[0]" :alt="product.title">
-                <img class="hover-img" :src="product.images[1]" :alt="product.title">
+            <n-link :to="localePath(`/product/${product.id}`)">
+                <img class="default-img" :src="productImage" :alt="productName">
+                <img v-if="productHoverImage" class="hover-img" :src="productHoverImage" :alt="productName">
             </n-link>
             <div class="product-badges">
-                <span class="product-label pink" v-if="product.new">New</span>
+                <span class="product-label pink" v-if="product.is_new || product.new">{{ $t('new') }}</span>
                 <span class="product-label purple" v-if="product.discount">-{{ product.discount }}%</span>
             </div>
             <div class="product-action" v-if="layout === 'twoColumn' || layout === 'threeColumn'">
                 <div class="pro-same-action pro-wishlist">
-                    <button class="btn" title="Wishlist" @click="addToWishlist(product)"> 
+                    <button class="btn" :title="$t('wishlist')" @click="addToWishlist(product)"> 
                         <i class="pe-7s-like"></i>
                     </button>
                 </div>
                 <div class="pro-same-action pro-cart">
-                    <n-link :to="`/product/${slugify(product.title)}`" class="btn" v-if="product.variation">
-                        select option
+                    <n-link :to="localePath(`/product/${product.id}`)" class="btn" v-if="(product.colors && product.colors.length > 0) || (product.sizes && product.sizes.length > 0)">
+                        {{ $t('select_option') }}
                     </n-link>
-                    <button class="btn" title="Add To Cart" @click="addToCart(product)" v-else>
+                    <button class="btn" :title="$t('add_to_cart')" @click="addToCart(product)" v-else>
                         <i class="pe-7s-cart"></i> 
-                        Add to cart
+                        {{ $t('add_to_cart') }}
                     </button>
                 </div>
                 <div class="pro-same-action pro-quickview">
-                    <button class="btn" title="Quick View" @click="onClick(product)">
+                    <button class="btn" :title="$t('quick_view')" @click="onClick(product)">
                         <i class="pe-7s-look"></i>
                     </button>
                 </div>
@@ -33,67 +33,26 @@
         </div>
         <div class="product-content text-center">
             <h3>
-                <n-link :to="`/product/${slugify(product.title)}`">{{ product.title }}</n-link>
+                <n-link :to="localePath(`/product/${product.id}`)">{{ productName }}</n-link>
             </h3>
-            <div class="product-rating" v-if="product.rating == 5">
-                <i class="fa fa-star-o yellow"></i>
-                <i class="fa fa-star-o yellow"></i>
-                <i class="fa fa-star-o yellow"></i>
-                <i class="fa fa-star-o yellow"></i>
-                <i class="fa fa-star-o yellow"></i>
-            </div>
-            <div class="product-rating" v-if="product.rating == 4">
-                <i class="fa fa-star-o yellow"></i>
-                <i class="fa fa-star-o yellow"></i>
-                <i class="fa fa-star-o yellow"></i>
-                <i class="fa fa-star-o yellow"></i>
-                <i class="fa fa-star-o"></i>
-            </div>
-            <div class="product-rating" v-if="product.rating == 3">
-                <i class="fa fa-star-o yellow"></i>
-                <i class="fa fa-star-o yellow"></i>
-                <i class="fa fa-star-o yellow"></i>
-                <i class="fa fa-star-o"></i>
-                <i class="fa fa-star-o"></i>
-            </div>
-            <div class="product-rating" v-if="product.rating == 2">
-                <i class="fa fa-star-o yellow"></i>
-                <i class="fa fa-star-o yellow"></i>
-                <i class="fa fa-star-o"></i>
-                <i class="fa fa-star-o"></i>
-                <i class="fa fa-star-o"></i>
-            </div>
-            <div class="product-rating" v-if="product.rating == 1">
-                <i class="fa fa-star-o yellow"></i>
-                <i class="fa fa-star-o"></i>
-                <i class="fa fa-star-o"></i>
-                <i class="fa fa-star-o"></i>
-                <i class="fa fa-star-o"></i>
+            <!-- Rating can be dynamically mapped if API provides it -->
+            <div class="product-rating" v-if="product.rating">
+                <i v-for="n in 5" :key="n" class="fa fa-star-o" :class="{ 'yellow': n <= product.rating }"></i>
             </div>
             <div class="product-price">
-                <span>${{ discountedPrice(product).toFixed(2) }}</span>
-                <span class="old" v-if="product.discount > 0">${{ product.price.toFixed(2) }}</span>
+                <span>${{ parseFloat(discountedPrice || product.price || 0).toFixed(2) }}</span>
+                <span class="old" v-if="discountedPrice">${{ parseFloat(product.price || 0).toFixed(2) }}</span>
             </div>
             <div class="product-content__list-view" v-if="layout === 'list'">
                 <p>{{ product.description }}</p>
                 <div class="pro-action d-flex align-items-center" >
                     <div class="pro-cart btn-hover">
-                        <n-link :to="`/product/${slugify(product.title)}`" class="btn" v-if="product.variation">
-                            select option
+                        <n-link :to="localePath(`/product/${product.id}`)" class="btn" v-if="(product.colors && product.colors.length > 0) || (product.sizes && product.sizes.length > 0)">
+                            {{ $t('select_option') }}
                         </n-link>
-                        <button class="btn" title="Add To Cart" @click="addToCart(product)" v-else>
+                        <button class="btn" :title="$t('add_to_cart')" @click="addToCart(product)" v-else>
                             <i class="pe-7s-cart"></i> 
-                            Add to cart
-                        </button>
-                    </div>
-                    <div class="pro-wishlist">
-                        <button @click="addToWishlist(product)">
-                            <i class="fa fa-heart-o"></i>
-                        </button>
-                    </div>
-                    <div class="pro-compare">
-                        <button @click="addToCompare(product)">
-                            <i class="pe-7s-shuffle"></i>
+                            {{ $t('add_to_cart') }}
                         </button>
                     </div>
                 </div>
@@ -106,59 +65,48 @@
     export default {
         props: ["product", "layout"],
 
-        methods: {
-            addToCart(product) {
-                const prod = {...product, cartQuantity: 1}
-                // for notification
-                if (this.$store.state.cart.find(el => product.id === el.id)) {
-                    this.$notify({ title: 'Already added to cart update with one' })
-                } else {
-                    this.$notify({ title: 'Add to cart successfully!'})
-                }
-
-                this.$store.dispatch('addToCartItem', prod)
+        computed: {
+            productName() {
+                return this.product.name || this.product.title || 'Product'
             },
+            productImage() {
+                // Try main_image first
+                if (this.product.main_image) return this.product.main_image
 
-            discountedPrice(product) {
-                return product.price - (product.price * product.discount / 100)
+                const img = this.product.images ? this.product.images[0] : null
+                if (!img) return '/img/product/fashion/1.jpg'
+                return typeof img === 'string' ? img : (img.url || '/img/product/fashion/1.jpg')
+            },
+            productHoverImage() {
+                const img = this.product.images ? this.product.images[1] : null
+                if (!img) return null
+                return typeof img === 'string' ? img : (img.url || null)
+            },
+            discountedPrice() {
+                return this.product.discounted_price || this.product.sale_price || null
+            }
+        },
+
+        methods: {
+            async addToCart(product) {
+                try {
+                    await this.$store.dispatch('cart/addToCart', {
+                        product: product,
+                        quantity: 1
+                    })
+                    this.$notify({ type: 'success', text: this.$t('add_to_cart_success') })
+                } catch (error) {
+                    this.$notify({ type: 'error', text: this.$t('error_occurred') || 'Failed to add to cart' })
+                }
             },
 
             addToWishlist(product) {
-                // for notification
-                if (this.$store.state.wishlist.find(el => product.id === el.id)) {
-                    this.$notify({ title: 'Already added to wishlist!' })
-                } else {
-                    this.$notify({ title: 'Add to wishlist successfully!'})
-                }
-
-                this.$store.dispatch('addToWishlist', product)
-            },
-
-            addToCompare(product) {
-                // for notification
-                if (this.$store.state.compare.find(el => product.id === el.id)) {
-                    this.$notify({ title: 'Already added to compare!' })
-                } else {
-                    this.$notify({ title: 'Add to compare successfully!'})
-                }
-
-                this.$store.dispatch('addToCompare', product)
+                // Implement wishlist dispatch later
+                this.$notify({ title: this.$t('add_to_wishlist_success') })
             },
 
             onClick(product) {
                 this.$modal.show('quickview', product);
-            },
-
-            slugify(text) {
-                return text
-                    .toString()
-                    .toLowerCase()
-                    .replace(/\s+/g, "-") // Replace spaces with -
-                    .replace(/[^\w-]+/g, "") // Remove all non-word chars
-                    .replace(/--+/g, "-") // Replace multiple - with single -
-                    .replace(/^-+/, "") // Trim - from start of text
-                    .replace(/-+$/, ""); // Trim - from end of text
-                    
             }
         },
     };

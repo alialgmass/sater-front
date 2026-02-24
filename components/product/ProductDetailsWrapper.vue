@@ -1,17 +1,17 @@
 <template>
-    <div class="shop-area pt-100 pb-100">
+    <div class="shop-area pt-100 pb-100" v-if="product">
         <div class="container">
             <div class="row">
                 <div class="col-md-6">
                     <div class="product-details-slider">
                         <div class="product-details-img">
                             <div class="product-badges">
-                                <span class="product-label pink" v-if="product.new">New</span>
+                                <span class="product-label pink" v-if="product.new || product.is_new">{{ $t('new') }}</span>
                                 <span class="product-label purple" v-if="product.discount">-{{ product.discount }}%</span>
                             </div>
                             <swiper :options="swiperOptionTop" ref="swiperTop">
                                 <div class="large-img swiper-slide" v-for="(image, index) in product.images" :key="index">
-                                    <img class="img-fluid" :src="image" :alt="product.title">
+                                    <img class="img-fluid" :src="typeof image === 'string' ? image : image.url" :alt="product.name || product.title">
                                 </div>
                                 <div class="quickview-nav swiper-button-prev">
                                     <i class="pe-7s-angle-left"></i>
@@ -22,7 +22,7 @@
                             </swiper>
                             <swiper class="mt-2" :options="swiperOptionThumbs" ref="swiperThumbs">
                                 <div class="thumb-img swiper-slide" v-for="(image, index) in product.images" :key="index">
-                                    <img class="img-fluid" :src="image" :alt="product.title">
+                                    <img class="img-fluid" :src="typeof image === 'string' ? image : image.url" :alt="product.name || product.title">
                                 </div>
                             </swiper>
                         </div>
@@ -30,10 +30,10 @@
                 </div>
                 <div class="col-lg-6 col-md-6">
                     <div class="product-details-content ml-70">
-                        <h2>{{ product.title }}</h2>
+                        <h2>{{ product.name || product.title }}</h2>
                         <div class="product-details-price">
-                            <span>${{ discountedPrice(product).toFixed(2) }}</span>
-                            <span class="old" v-if="product.discount > 0">${{ product.price.toFixed(2) }}</span>
+                            <span>${{ parseFloat(getDiscountedPrice).toFixed(2) }}</span>
+                            <span class="old" v-if="hasDiscount">${{ parseFloat(product.price || 0).toFixed(2) }}</span>
                         </div>
                         <div class="pro-details-rating-wrap">
                             <div class="pro-details-rating" v-if="product.rating == 5">
@@ -71,25 +71,25 @@
                                 <i class="fa fa-star-o"></i>
                                 <i class="fa fa-star-o"></i>
                             </div>
-                            <span><a href="#">{{ product.rating }} Reviews</a></span>
+                            <span><a href="#">{{ product.rating }} {{ $t('reviews') }}</a></span>
                         </div>
                         <p>{{ product.description }}</p>
-                        <div class="pro-details-size-color" v-if="product.variation">
-                            <div class="pro-details-color-wrap">
-                                <h6 class="label">Color</h6>
+                        <div class="pro-details-size-color" v-if="product.colors || product.sizes">
+                            <div class="pro-details-color-wrap" v-if="product.colors && product.colors.length > 0">
+                                <h6 class="label">{{ $t('color_label') }}</h6>
                                 <div class="pro-details-color-content">
-                                    <label :class="item" class="radio" v-for="(item, index) in product.variation.color" :key="index" >
-                                        <input type="radio" name="colorGroup"/>
-                                        <span class="check-mark"></span>
+                                    <label class="radio" v-for="(item, index) in product.colors" :key="index" :title="item.name">
+                                        <input type="radio" name="colorGroup" :value="item.id" v-model="selectedColor"/>
+                                        <span class="check-mark" :style="{ backgroundColor: item.hex_code }"></span>
                                     </label>
                                 </div>
                             </div>
-                            <div class="pro-details-size-wrap">
-                                <h6 class="label">Size</h6>
+                            <div class="pro-details-size-wrap" v-if="product.sizes && product.sizes.length > 0">
+                                <h6 class="label">{{ $t('size_label') }}</h6>
                                 <div class="pro-details-size-content">
-                                    <label class="radio" v-for="(item, index) in product.variation.sizes" :key="index">
-                                        <input type="radio" name="sizeGroup" />
-                                        <span class="check-mark">{{ item }}</span>
+                                    <label class="radio" v-for="(item, index) in product.sizes" :key="index">
+                                        <input type="radio" name="sizeGroup" :value="item.id" v-model="selectedSize" />
+                                        <span class="check-mark">{{ item.name }}</span>
                                     </label>
                                 </div>
                             </div>
@@ -101,7 +101,7 @@
                                 <button @click="increaseQuantity()" class="inc qtybutton">+</button>
                             </div>
                             <div class="pro-details-cart btn-hover">
-                                <button @click="addToCart(product)">Add To Cart</button>
+                                <button @click="addToCart(product)">{{ $t('add_to_cart') }}</button>
                             </div>
                             <div class="pro-details-wishlist">
                                 <button @click="addToWishlist(product)" title="wishlist"><i class="fa fa-heart-o"></i></button>
@@ -111,18 +111,23 @@
                             </div>
                         </div>
                         <div class="pro-details-meta">
-                            <span class="label">Categories:</span>
-                            <ul>
-                                <li v-for="(category, index) in product.category" :key="index">
-                                    <n-link :to="`/shop?category=${slugify(category)}`">{{ category }},</n-link>
+                            <span class="label">{{ $t('categories_label') }}</span>
+                            <ul v-if="product.category">
+                                <li>
+                                    <n-link :to="localePath(`/shop?category=${product.category.slug || product.category.id}`)">{{ product.category.name || product.category.title || 'Category' }}</n-link>
+                                </li>
+                            </ul>
+                            <ul v-else-if="product.categories">
+                                <li v-for="(category, index) in product.categories" :key="index">
+                                    <n-link :to="localePath(`/shop?category=${category.slug || category.id || category}`)">{{ category.name || category.title || category }}</n-link>
                                 </li>
                             </ul>
                         </div>
                         <div class="pro-details-meta">
-                            <span class="label">Tag:</span>
-                            <ul>
-                                <li v-for="(tag, index) in product.tag" :key="index">
-                                    <n-link :to="`/shop?tag=${slugify(tag)}`">{{ tag }},</n-link>
+                            <span class="label">{{ $t('tag_label') }}</span>
+                            <ul v-if="product.tags">
+                                <li v-for="(tag, index) in product.tags" :key="index">
+                                    <n-link :to="localePath(`/shop?tag=${tag.slug}`)">{{ tag.name }},</n-link>
                                 </li>
                             </ul>
                         </div>
@@ -166,9 +171,20 @@
     export default {
         props: ['product'],
 
+        computed: {
+            getDiscountedPrice() {
+                return this.product.discounted_price || this.product.sale_price || this.product.price || 0
+            },
+            hasDiscount() {
+                return !!(this.product.discounted_price || this.product.sale_price || (this.product.discount && this.product.discount > 0))
+            }
+        },
+
         data() {
             return {
                 singleQuantity: 1,
+                selectedColor: null,
+                selectedSize: null,
 
                 swiperOptionTop: {
                     loop: true,
@@ -198,27 +214,55 @@
 
         mounted() {
             this.$nextTick(() => {
-                const swiperTop = this.$refs.swiperTop.$swiper
-                const swiperThumbs = this.$refs.swiperThumbs.$swiper
-                swiperTop.controller.control = swiperThumbs
-                swiperThumbs.controller.control = swiperTop
+                const swiperTop = this.$refs.swiperTop && this.$refs.swiperTop.$swiper
+                const swiperThumbs = this.$refs.swiperThumbs && this.$refs.swiperThumbs.$swiper
+                
+                if (swiperTop && swiperThumbs) {
+                    swiperTop.controller.control = swiperThumbs
+                    swiperThumbs.controller.control = swiperTop
+                }
             })
         },
 
         methods: {
             addToCart(product) {
-                const prod = {...product, cartQuantity: this.singleQuantity}
-                // for notification
-                if (this.$store.state.cart.find(el => product.id === el.id)) {
-                    this.$notify({ title: 'Already added to cart update with one' })
-                } else {
-                    this.$notify({ title: 'Add to cart successfully!'})
+                if (product.colors && product.colors.length > 0 && !this.selectedColor) {
+                    this.$notify({ type: 'warning', title: this.$t('please_select_color') })
+                    return
                 }
-                this.$store.dispatch('addToCartItem', prod)
+                if (product.sizes && product.sizes.length > 0 && !this.selectedSize) {
+                    this.$notify({ type: 'warning', title: this.$t('please_select_size') })
+                    return
+                }
+
+                const prod = {
+                    ...product, 
+                    cartQuantity: this.singleQuantity,
+                    selectedColor: this.selectedColor,
+                    selectedSize: this.selectedSize
+                }
+                
+                // for notification
+                if (this.$store.state.cart.cart.find(el => 
+                    product.id === el.id && 
+                    this.selectedColor === el.selectedColor && 
+                    this.selectedSize === el.selectedSize
+                )) {
+                    this.$notify({ title: this.$t('already_in_cart') })
+                } else {
+                    this.$notify({ title: this.$t('add_to_cart_success') })
+                }
+                
+                this.$store.dispatch('cart/addToCart', {
+                    product: product,
+                    quantity: this.singleQuantity,
+                    colorId: this.selectedColor,
+                    sizeId: this.selectedSize
+                })
             },
 
             discountedPrice(product) {
-                return product.price - (product.price * product.discount / 100)
+                return product.discounted_price || product.sale_price || (product.price - (product.price * (product.discount || 0) / 100))
             },
 
             increaseQuantity(){
@@ -232,9 +276,9 @@
             addToWishlist(product) {
                 // for notification
                 if (this.$store.state.wishlist.find(el => product.id === el.id)) {
-                    this.$notify({ title: 'Already added to wishlist!' })
+                    this.$notify({ title: this.$t('already_in_wishlist') })
                 } else {
-                    this.$notify({ title: 'Add to wishlist successfully!'})
+                    this.$notify({ title: this.$t('add_to_wishlist_success') })
                 }
                 this.$store.dispatch('addToWishlist', product)
             },
@@ -242,9 +286,9 @@
             addToCompare(product) {
                 // for notification
                 if (this.$store.state.compare.find(el => product.id === el.id)) {
-                    this.$notify({ title: 'Already added to compare!' })
+                    this.$notify({ title: this.$t('already_in_compare') })
                 } else {
-                    this.$notify({ title: 'Add to compare successfully!'})
+                    this.$notify({ title: this.$t('add_to_compare_success') })
                 }
                 this.$store.dispatch('addToCompare', product)
             },

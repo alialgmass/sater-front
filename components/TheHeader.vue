@@ -23,7 +23,7 @@
                                 <button class="search-active" @click="isOpenSearch = !isOpenSearch"><i class="pe-7s-search"></i></button>
                                 <div class="search-content" :class="{ active:isOpenSearch }">
                                     <form>
-                                        <input type="text" placeholder="Search" />
+                                        <input type="text" :placeholder="$t('search')" />
                                         <button class="button-search"><i class="pe-7s-search"></i></button>
                                     </form>
                                 </div> 
@@ -32,9 +32,9 @@
                                 <button class="account-setting-active" @click="isOpenAccountSettings = !isOpenAccountSettings"><i class="pe-7s-user-female"></i></button>
                                 <div class="account-dropdown" :class="{ active:isOpenAccountSettings }">
                                     <ul>
-                                        <li><n-link to="/login-register">Login</n-link></li>
-                                        <li><n-link to="/login-register">Register</n-link></li>
-                                        <li><n-link to="/my-account">my account</n-link></li>
+                                        <li><n-link :to="localePath('/login-register')">{{ $t('login') }}</n-link></li>
+                                        <li><n-link :to="localePath('/login-register')">{{ $t('register') }}</n-link></li>
+                                        <li><n-link :to="localePath('/my-account')">{{ $t('my_account') }}</n-link></li>
                                     </ul>
                                 </div>
                             </div>

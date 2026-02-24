@@ -1,17 +1,17 @@
 <template>
     <div class="product-area pb-90">
         <div class="container">
-            <SectionTitleWithSubTitle title="DAILY DEALS!" classes="section-title" v-if="isSectionTitle ? true : false" />
+            <SectionTitleWithSubTitle :title="$t('daily_deals')" classes="section-title" v-if="isSectionTitle ? true : false" />
 
             <ul class="nav product-tab-list pt-30 pb-55 justify-content-center">
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link" data-bs-toggle="pill" data-bs-target="#new-product" role="tab">New Arrivals</button>
+                    <button class="nav-link" data-bs-toggle="pill" data-bs-target="#new-product" role="tab">{{ $t('new_arrivals') }}</button>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#best-product" role="tab">Best Sellers</button>
+                    <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#best-product" role="tab">{{ $t('best_sellers') }}</button>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link" data-bs-toggle="pill" data-bs-target="#sale-product" role="tab">Sale Items</button>
+                    <button class="nav-link" data-bs-toggle="pill" data-bs-target="#sale-product" role="tab">{{ $t('sale_items') }}</button>
                 </li>
             </ul>
             <div class="tab-content">
@@ -37,7 +37,7 @@
                     </div>
                 </div>
                 <div class="view-more text-center mt-20 toggle-btn2">
-                    <n-link to="/shop" class="loadMore2">VIEW MORE PRODUCTS</n-link>
+                    <n-link :to="localePath('/shop')" class="loadMore2">{{ $t('view_more_products') }}</n-link>
                 </div>
             </div>
         </div>

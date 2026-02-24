@@ -1,6 +1,6 @@
 <template>
     <div class="home-cosmetics">
-        <TheHeader />
+        <HeaderWithTopbar containerClass="container-fluid" />
         <HeroSliderCosmetics />
         <ProductWrapperCosmetics />
         <ServicePolicyFour />
@@ -15,7 +15,7 @@
 <script>
     export default {
         components: {
-            TheHeader: () => import('@/components/TheHeader'),
+            HeaderWithTopbar: () => import('@/components/HeaderWithTopbar'),
             HeroSliderCosmetics: () => import('@/components/hero/HeroSliderCosmetics'),
             ProductWrapperCosmetics: () => import('@/components/product/ProductWrapperCosmetics'),
             ServicePolicyFour: () => import('@/components/policy/ServicePolicyFour'),
