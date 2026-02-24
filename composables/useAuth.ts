@@ -1,183 +1,89 @@
-import { useCookie, navigateTo, useRuntimeConfig } from '#app'
-import { getApiBaseUrl, getAuthHeaders, handleApiError } from './helpers'
+// composables/useAuth.ts
 
-// Define user type
-export interface User {
-  id: number
-  name: string
-  email: string
-  email_verified_at?: string
-  created_at: string
-  updated_at: string
-}
-
-// Login credentials
-export interface LoginCredentials {
-  email: string
-  password: string
-}
-
-// Registration data
-export interface RegisterData {
-  name: string
-  email: string
-  password: string
-  password_confirmation: string
-}
-
-// Login response
-export interface LoginResponse {
-  user: User
-  token: string
-}
-
-/**
- * Composable for authentication operations
- */
 export const useAuth = () => {
-  const baseUrl = getApiBaseUrl()
-  const tokenCookie = useCookie('customer_token')
+  const { request } = useApi()
+  const token = useCookie('sater_token', { maxAge: 60 * 60 * 24 * 7 }) // 7 days
+  const user = useState<any>('user', () => null)
+  const isLoggedIn = computed(() => !!token.value)
 
-  /**
-   * Login user with credentials
-   */
-  const login = async (credentials: LoginCredentials): Promise<LoginResponse> => {
-    try {
-      // Add device_name to credentials as required by API
-      const loginData = {
-        ...credentials,
-        device_name: 'web_app'
+  // ── Register ──────────────────────────────────────────────
+  const register = async (data: {
+    name: string
+    email: string
+    password: string
+    password_confirmation: string
+    phone: string
+  }) => {
+    const res = await request('/api/register', {
+      method: 'POST',
+      body: data,
+    })
+    if (res.data) {
+      // After register, user needs OTP verification
+      // Store token if returned immediately
+      const d = res.data as any
+      if (d.token) {
+        token.value = d.token
+        user.value = d.user
       }
-      
-      const response = await $fetch<LoginResponse>(`${baseUrl}/api/login`, {
-        method: 'POST',
-        body: loginData,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      })
-
-      // Store token in cookie
-      tokenCookie.value = response.token
-
-      return response
-    } catch (error: any) {
-      const apiError = handleApiError(error)
-      throw apiError
     }
+    return res
   }
 
-  /**
-   * Register a new user
-   */
-  const register = async (userData: RegisterData): Promise<LoginResponse> => {
-    try {
-      const response = await $fetch<LoginResponse>(`${baseUrl}/api/register`, {
-        method: 'POST',
-        body: userData,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      })
-
-      // Store token in cookie
-      tokenCookie.value = response.token
-
-      return response
-    } catch (error: any) {
-      const apiError = handleApiError(error)
-      throw apiError
+  // ── Login ─────────────────────────────────────────────────
+  const login = async (data: {
+    email: string
+    password: string
+    device_name?: string
+  }) => {
+    const res = await request('/api/login', {
+      method: 'POST',
+      body: { device_name: 'web_app', ...data },
+    })
+    if (res.data) {
+      const d = res.data as any
+      if (d.token) {
+        token.value = d.token
+        user.value = d.user
+      }
     }
+    return res
   }
 
-  /**
-   * Logout user and clear token
-   */
-  const logout = async (): Promise<void> => {
-    try {
-      await $fetch(`${baseUrl}/api/logout`, {
-        method: 'POST',
-        headers: getAuthHeaders(),
-      })
-    } catch (error: any) {
-      console.warn('Logout failed:', error)
-      // Continue with logout even if API call fails
-    } finally {
-      // Clear token cookie regardless of API response
-      tokenCookie.value = null
-    }
+  // ── Verify OTP ────────────────────────────────────────────
+  const verifyOtp = async (otp: string) => {
+    const res = await request('/api/verify-otp', {
+      method: 'POST',
+      body: { otp },
+      auth: true,
+    })
+    return res
   }
 
-  /**
-   * Get current user profile
-   */
-  const getProfile = async (): Promise<User> => {
-    try {
-      const response = await $fetch<User>(`${baseUrl}/api/profile`, {
-        headers: getAuthHeaders(),
-      })
-
-      return response
-    } catch (error: any) {
-      const apiError = handleApiError(error)
-      throw apiError
+  // ── Get Profile ───────────────────────────────────────────
+  const fetchProfile = async () => {
+    const res = await request('/api/profile', { auth: true })
+    if (res.data) {
+      user.value = (res.data as any).user || res.data
     }
+    return res
   }
 
-  /**
-   * Update user profile
-   */
-  const updateProfile = async (userData: Partial<User>): Promise<User> => {
-    try {
-      const response = await $fetch<User>(`${baseUrl}/api/profile`, {
-        method: 'PUT',
-        body: userData,
-        headers: getAuthHeaders(),
-      })
-
-      return response
-    } catch (error: any) {
-      const apiError = handleApiError(error)
-      throw apiError
-    }
-  }
-
-  /**
-   * Check if user is authenticated
-   */
-  const isAuthenticated = (): boolean => {
-    return !!tokenCookie.value
-  }
-
-  /**
-   * Refresh user token
-   */
-  const refreshToken = async (): Promise<string> => {
-    try {
-      const response = await $fetch<{ token: string }>(`${baseUrl}/api/refresh`, {
-        method: 'POST',
-        headers: getAuthHeaders(),
-      })
-
-      // Update token in cookie
-      tokenCookie.value = response.token
-
-      return response.token
-    } catch (error: any) {
-      const apiError = handleApiError(error)
-      // If refresh fails, clear the token
-      tokenCookie.value = null
-      throw apiError
-    }
+  // ── Logout ────────────────────────────────────────────────
+  const logout = () => {
+    token.value = null
+    user.value = null
+    navigateTo('/')
   }
 
   return {
-    login,
+    token,
+    user,
+    isLoggedIn,
     register,
+    login,
+    verifyOtp,
+    fetchProfile,
     logout,
-    getProfile,
-    updateProfile,
-    isAuthenticated,
-    refreshToken,
   }
 }

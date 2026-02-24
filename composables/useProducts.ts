@@ -1,230 +1,146 @@
-import { getApiBaseUrl, getAuthHeaders, handleApiError } from './api/helpers'
+// composables/useProducts.ts
 
-export interface Color {
+export interface Product {
+  id: number
+  name: string
+  slug: string
+  price: number
+  old_price?: number
+  image: string
+  images?: string[]
+  category?: { id: number; name: string }
+  vendor?: { id: number; name: string; shop_name: string }
+  colors?: string[]
+  sizes?: string[]
+  description?: string
+  is_new?: boolean
+  rating?: number
+  reviews_count?: number
+}
+
+export interface Category {
+  id: number
+  name: string
+  slug: string
+  image?: string
+  products_count?: number
+}
+
+export interface ColorOption {
   id: number
   name: string
   hex_code: string
 }
 
-export interface Size {
+export interface SizeOption {
   id: number
   name: string
-  abbreviation: string
+  abbreviation?: string
 }
 
-export interface Tag {
-  id: number
-  name: string
-  slug: string
-}
-
-// Define product type
-export interface Product {
+export interface TagOption {
   id: number
   name: string
   slug: string
-  description: string
-  short_description?: string
-  sku: string
-  price: number
-  sale_price?: number
-  stock_quantity: number
-  in_stock: boolean
-  is_active: boolean
-  images: string[]
-  category_id: number
-  brand_id?: number
-  weight?: number
-  dimensions?: {
-    length: number
-    width: number
-    height: number
-  }
-  attributes?: Record<string, any>
-  colors?: Color[]
-  sizes?: Size[]
-  tags?: Tag[]
-  rating: number
-  reviews_count: number
-  created_at: string
-  updated_at: string
 }
 
-// Product filters
-export interface ProductFilters {
-  category?: number | string
-  brand?: number | string
-  color_id?: number | string
-  size_id?: number | string
-  tag_id?: number | string
-  min_price?: number
-  max_price?: number
-  in_stock?: boolean
-  on_sale?: boolean
-  search?: string
-  sort_by?: 'price_low' | 'price_high' | 'newest' | 'best_selling' | 'rating'
-  page?: number
-  per_page?: number
-}
+export const useProducts = () => {
+  const { request } = useApi()
 
-// Product response with pagination
-export interface ProductResponse {
-  data: Product[]
-  meta: {
-    current_page: number
-    from: number
-    last_page: number
-    path: string
-    per_page: number
-    to: number
-    total: number
-  }
-  links: {
-    first?: string
-    last?: string
-    prev?: string
-    next?: string
-  }
-}
+  const normalizeProductsResponse = (payload: any): { items: Product[]; meta: any } => {
+    const wrapped = payload?.body?.products ?? payload?.products ?? payload
+    const itemsCandidate = wrapped?.data ?? payload?.data ?? wrapped
+    const meta = wrapped?.paginate ?? payload?.meta ?? payload?.paginate ?? null
 
-/**
- * Composable for product operations
- */
-/**
- * Composable for product operations
- */
-export const useProducts = (context: any) => {
-  const { $axios } = context
-
-  /**
-   * Get all products with optional filters
-   */
-  const getProducts = async (filters?: ProductFilters): Promise<ProductResponse> => {
-    try {
-      const params = new URLSearchParams()
-
-      if (filters) {
-        Object.entries(filters).forEach(([key, value]) => {
-          if (value !== undefined && value !== null) {
-            params.append(key, String(value))
-          }
-        })
-      }
-
-      const queryString = params.toString()
-      const url = `/v1/products${queryString ? '?' + queryString : ''}`
-
-      const response = await $axios.$get(url)
-
-      return response
-    } catch (error: any) {
-      const apiError = handleApiError(error)
-      throw apiError
+    return {
+      items: Array.isArray(itemsCandidate) ? itemsCandidate : [],
+      meta,
     }
   }
 
-  /**
-   * Get a single product by ID
-   */
-  const getProduct = async (productId: number): Promise<Product> => {
-    try {
-      const response = await $axios.$get(`/products/${productId}`)
-      return response
-    } catch (error: any) {
-      const apiError = handleApiError(error)
-      throw apiError
-    }
+  const normalizeCategoriesResponse = (payload: any): Category[] => {
+    const items = payload?.body?.categories ?? payload?.categories ?? payload?.data ?? payload
+    return Array.isArray(items) ? items : []
   }
 
-  /**
-   * Get featured products
-   */
-  const getFeaturedProducts = async (limit = 10): Promise<Product[]> => {
-    try {
-      const response = await $axios.$get(`/products/featured?limit=${limit}`)
-      return response
-    } catch (error: any) {
-      const apiError = handleApiError(error)
-      throw apiError
-    }
+  const normalizeProductResponse = (payload: any): Product | null => {
+    const item = payload?.body?.product ?? payload?.product ?? payload?.data ?? payload
+    if (!item || Array.isArray(item)) return null
+    return item as Product
   }
 
-  /**
-   * Get newest products
-   */
-  const getNewestProducts = async (limit = 10): Promise<Product[]> => {
-    try {
-      const response = await $axios.$get(`/products/newest?limit=${limit}`)
-      return response
-    } catch (error: any) {
-      const apiError = handleApiError(error)
-      throw apiError
-    }
+  const normalizeColorsResponse = (payload: any): ColorOption[] => {
+    const items = payload?.body?.colors ?? payload?.colors ?? payload?.data ?? payload
+    return Array.isArray(items) ? items : []
   }
 
-  /**
-   * Get products on sale
-   */
-  const getOnSaleProducts = async (limit = 10): Promise<Product[]> => {
-    try {
-      const response = await $axios.$get(`/products/on-sale?limit=${limit}`)
-      return response
-    } catch (error: any) {
-      const apiError = handleApiError(error)
-      throw apiError
-    }
+  const normalizeSizesResponse = (payload: any): SizeOption[] => {
+    const items = payload?.body?.sizes ?? payload?.sizes ?? payload?.data ?? payload
+    return Array.isArray(items) ? items : []
   }
 
-  /**
-   * Get related products
-   */
-  const getRelatedProducts = async (productId: number, limit = 6): Promise<Product[]> => {
-    try {
-      const response = await $axios.$get(`/products/${productId}/related?limit=${limit}`)
-      return response
-    } catch (error: any) {
-      const apiError = handleApiError(error)
-      throw apiError
-    }
+  const normalizeTagsResponse = (payload: any): TagOption[] => {
+    const items = payload?.body?.tags ?? payload?.tags ?? payload?.data ?? payload
+    return Array.isArray(items) ? items : []
   }
 
-  /**
-   * Get products by category
-   */
-  const getProductsByCategory = async (
-    categoryId: number,
-    filters?: Omit<ProductFilters, 'category'>
-  ): Promise<ProductResponse> => {
-    try {
-      const params = new URLSearchParams()
+  // ── All Products ──────────────────────────────────────────
+  const getProducts = async (params?: {
+    page?: number
+    per_page?: number
+    category_id?: number
+    q?: string
+    sort?: string
+  }) => {
+    return await request<{ data: Product[]; meta?: any }>('/api/v1/products', {
+      params,
+    })
+  }
 
-      if (filters) {
-        Object.entries(filters).forEach(([key, value]) => {
-          if (value !== undefined && value !== null) {
-            params.append(key, String(value))
-          }
-        })
-      }
+  // ── Search Products ───────────────────────────────────────
+  const searchProducts = async (q: string, params?: Record<string, any>) => {
+    return await request<{ data: Product[] }>('/api/v1/search/products', {
+      params: { q, ...(params || {}) },
+    })
+  }
 
-      const queryString = params.toString()
-      const url = `/categories/${categoryId}/products${queryString ? '?' + queryString : ''}`
+  // ── Categories ────────────────────────────────────────────
+  const getCategories = async () => {
+    return await request<{ data: Category[] }>('/api/v1/categories')
+  }
 
-      const response = await $axios.$get(url)
+  const getColors = async () => {
+    return await request<{ data: ColorOption[] }>('/api/v1/colors')
+  }
 
-      return response
-    } catch (error: any) {
-      const apiError = handleApiError(error)
-      throw apiError
-    }
+  const getSizes = async () => {
+    return await request<{ data: SizeOption[] }>('/api/v1/sizes')
+  }
+
+  const getTags = async () => {
+    return await request<{ data: TagOption[] }>('/api/v1/tags')
+  }
+
+  // ── Single Product ────────────────────────────────────────
+  // ⚠️  MISSING IN BACKEND: GET /api/v1/products/{id}
+  // You need to add this endpoint in Laravel
+  const getProduct = async (id: number | string) => {
+    return await request<{ data: Product }>(`/api/v1/products/${id}`)
   }
 
   return {
     getProducts,
+    searchProducts,
+    getCategories,
+    getColors,
+    getSizes,
+    getTags,
     getProduct,
-    getFeaturedProducts,
-    getNewestProducts,
-    getOnSaleProducts,
-    getRelatedProducts,
-    getProductsByCategory,
+    normalizeProductsResponse,
+    normalizeCategoriesResponse,
+    normalizeProductResponse,
+    normalizeColorsResponse,
+    normalizeSizesResponse,
+    normalizeTagsResponse,
   }
 }

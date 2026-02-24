@@ -1,212 +1,197 @@
 <template>
-    <div class="cart-page-wrapper">
-        <HeaderWithTopbar containerClass="container" />
-        <Breadcrumb :pageTitle="$t('cart')" />
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <h1 class="text-3xl font-bold font-display mb-8">سلة التسوق</h1>
 
-        <div class="cart-main-area pt-90 pb-100">
-            <div class="container">
-                <div class="row">
-                    <div class="col-12" v-if="products.length > 0">
-                        <h3 class="cart-page-title">{{ $t('your_cart_items') }}</h3>
-                        <div class="table-content table-responsive cart-table-content">
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>{{ $t('image') || 'Image' }}</th>
-                                        <th>{{ $t('product_name') }}</th>
-                                        <th>{{ $t('unit_price') }}</th>
-                                        <th>{{ $t('qty') }}</th>
-                                        <th>{{ $t('subtotal') }}</th>
-                                        <th>{{ $t('action') }}</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr v-for="(item, index) in products" :key="index">
-                                        <td class="product-thumbnail">
-                                            <n-link :to="localePath(`/product/${item.product_id}`)">
-                                                <img :src="item.product && item.product.images ? item.product.images[0]?.url : '/img/placeholder.png'" :alt="item.product ? item.product.name : ''">
-                                            </n-link>
-                                        </td>
-                                        <td class="product-name">
-                                            <n-link :to="localePath(`/product/${item.product_id}`)">{{ item.product ? item.product.name : 'Product' }}</n-link>
-                                        </td>
-                                        <td class="product-price-cart">
-                                            <span class="amount">{{ $t('currency_symbol') }}{{ parseFloat(item.price || 0).toFixed(2) }}</span>
-                                        </td>
-                                        <td class="product-quantity">
-                                            <div class="cart-plus-minus">
-                                                <button @click="decrementProduct(item)" class="dec qtybutton">-</button>
-                                                <input class="cart-plus-minus-box" type="text" :value="item.quantity" readonly>
-                                                <button @click="incrementProduct(item)" class="inc qtybutton">+</button>
-                                            </div>
-                                        </td>
-                                        <td class="product-subtotal">{{ $t('currency_symbol') }}{{ (parseFloat(item.price || 0) * item.quantity).toFixed(2) }}</td>
-                                        <td class="product-remove">
-                                            <button @click="removeProduct(item)"><i class="fa fa-times"></i></button>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                        <div class="row">
-                            <div class="col-lg-12">
-                                <div class="cart-shiping-update-wrapper">
-                                    <div class="cart-shiping-update">
-                                        <n-link :to="localePath('/shop')">{{ $t('continue_shopping') }}</n-link>
-                                    </div>
-                                    <div class="cart-clear">
-                                        <button @click="clearCart()">{{ $t('clear_cart') }}</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-lg-4 col-md-6">
-                                <div class="cart-tax">
-                                    <div class="title-wrap">
-                                        <h4 class="cart-bottom-title section-bg-gray">{{ $t('estimate_shipping') }}</h4>
-                                    </div>
-                                    <div class="tax-wrapper">
-                                        <p>{{ $t('shipping_estimate_text') }}</p>
-                                        <div class="tax-select-wrapper">
-                                            <div class="tax-select">
-                                                <label>
-                                                    * {{ $t('country_label') }}
-                                                </label>
-                                                <select class="email s-email s-wid">
-                                                    <option>{{ $t('bangladesh') }}</option>
-                                                    <option>{{ $t('albania') }}</option>
-                                                    <option>{{ $t('aland_islands') }}</option>
-                                                    <option>{{ $t('afghanistan') }}</option>
-                                                    <option>{{ $t('belgium') }}</option>
-                                                </select>
-                                            </div>
-                                            <div class="tax-select">
-                                                <label>
-                                                    * {{ $t('region_state_label') }}
-                                                </label>
-                                                <select class="email s-email s-wid">
-                                                    <option>{{ $t('bangladesh') }}</option>
-                                                    <option>{{ $t('albania') }}</option>
-                                                    <option>{{ $t('aland_islands') }}</option>
-                                                    <option>{{ $t('afghanistan') }}</option>
-                                                    <option>{{ $t('belgium') }}</option>
-                                                </select>
-                                            </div>
-                                            <div class="tax-select">
-                                                <label>
-                                                    * {{ $t('zip_postal_label') }}
-                                                </label>
-                                                <input type="text">
-                                            </div>
-                                            <button class="cart-btn-2" type="submit">{{ $t('get_a_quote') }}</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-lg-4 col-md-6">
-                                <div class="discount-code-wrapper">
-                                    <div class="title-wrap">
-                                    <h4 class="cart-bottom-title section-bg-gray">{{ $t('use_coupon_code') }}</h4> 
-                                    </div>
-                                    <div class="discount-code">
-                                        <p>{{ $t('coupon_text') }}</p>
-                                        <form>
-                                            <input type="text" required="" name="name">
-                                            <button class="cart-btn-2" type="submit">{{ $t('apply_coupon') }}</button>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-lg-4 col-md-12">
-                                <div class="grand-total">
-                                    <div class="title-wrap">
-                                        <h4 class="cart-bottom-title section-bg-gary-cart">{{ $t('cart_total_title') }}</h4>
-                                    </div>
-                                    <h5>{{ $t('total_products') }} <span>{{ $t('currency_symbol') }}{{ parseFloat(total || 0).toFixed(2) }}</span></h5>
-                                    <h4 class="grand-total-title">{{ $t('total') }}  <span>{{ $t('currency_symbol') }}{{ parseFloat(total || 0).toFixed(2) }}</span></h4>
-                                    <n-link :to="localePath('/checkout')">{{ $t('proceed_to_checkout') }}</n-link>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-12" v-else>
-                        <div class="empty-cart text-center">
-                            <div class="icon">
-                                <i class="pe-7s-cart"></i>
-                            </div>
-                            <h4>{{ $t('empty_cart_message') }}</h4>
-                            <n-link :to="localePath('/shop')" class="empty-cart__button">{{ $t('shop_now') }}</n-link>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <TheFooter />
+    <div v-if="loading" class="flex items-center justify-center py-20">
+      <span class="material-symbols-outlined text-5xl text-primary animate-spin">progress_activity</span>
     </div>
+
+    <div v-else-if="!cart?.items?.length" class="text-center py-20">
+      <span class="material-symbols-outlined text-7xl text-slate-300">shopping_bag</span>
+      <h2 class="mt-4 text-xl font-bold text-slate-600">سلتك فارغة</h2>
+      <p class="mt-2 text-slate-400">ابدئي التسوق لإضافة منتجات إلى سلتك</p>
+      <NuxtLink to="/products" class="mt-6 inline-block btn-primary">تسوقي الآن</NuxtLink>
+    </div>
+
+    <div v-else class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <!-- Cart Items -->
+      <div class="lg:col-span-2 space-y-4">
+        <p class="text-slate-500">{{ cart.items.length }} منتجات في السلة</p>
+
+        <div
+          v-for="item in cart.items"
+          :key="item.id"
+          class="bg-white dark:bg-slate-800 rounded-2xl p-4 flex gap-4 shadow-sm"
+        >
+          <!-- Product Image -->
+          <NuxtLink :to="`/products/${item.product_id}`" class="shrink-0">
+            <div class="w-24 h-28 rounded-xl overflow-hidden bg-slate-100">
+              <img
+                v-if="item.product?.image"
+                :src="item.product.image"
+                :alt="item.product.name"
+                class="w-full h-full object-cover"
+              />
+              <span v-else class="material-symbols-outlined text-slate-300 flex items-center justify-center h-full text-4xl">image</span>
+            </div>
+          </NuxtLink>
+
+          <!-- Product Details -->
+          <div class="flex-1 min-w-0">
+            <p v-if="item.product?.vendor" class="text-xs text-primary mb-1">{{ item.product.vendor.name }}</p>
+            <h3 class="font-semibold text-sm line-clamp-2 mb-2">{{ item.product?.name }}</h3>
+            <p class="text-primary font-bold">{{ item.product?.price }} ر.س</p>
+
+            <!-- Quantity Controls -->
+            <div class="flex items-center gap-3 mt-3">
+              <div class="flex items-center gap-2 bg-slate-100 rounded-xl p-1">
+                <button
+                  @click="updateQuantity(item.id, item.quantity - 1)"
+                  :disabled="item.quantity <= 1"
+                  class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white transition-all disabled:opacity-40"
+                >
+                  <span class="material-symbols-outlined text-[18px]">remove</span>
+                </button>
+                <span class="w-8 text-center font-bold text-sm">{{ item.quantity }}</span>
+                <button
+                  @click="updateQuantity(item.id, item.quantity + 1)"
+                  class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white transition-all"
+                >
+                  <span class="material-symbols-outlined text-[18px]">add</span>
+                </button>
+              </div>
+
+              <button
+                @click="removeItem(item.id)"
+                class="text-slate-400 hover:text-red-500 transition-colors"
+              >
+                <span class="material-symbols-outlined text-[20px]">delete</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Item Total -->
+          <div class="text-left shrink-0">
+            <p class="font-bold text-slate-900 dark:text-white">{{ item.subtotal || (item.product?.price * item.quantity) }} ر.س</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Order Summary -->
+      <div class="lg:col-span-1">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm sticky top-28">
+          <h3 class="text-xl font-bold mb-6">ملخص الطلب</h3>
+
+          <!-- Address -->
+          <div class="mb-4 p-3 bg-slate-50 dark:bg-slate-700 rounded-xl">
+            <div class="flex justify-between items-start">
+              <div>
+                <p class="text-xs text-slate-400 mb-1">عنوان التوصيل</p>
+                <p class="text-sm font-medium">المنزل - الرياض</p>
+              </div>
+              <NuxtLink to="/account/addresses" class="text-xs text-primary hover:underline">تغيير</NuxtLink>
+            </div>
+          </div>
+
+          <!-- Payment Method -->
+          <div class="mb-6">
+            <p class="text-sm font-bold mb-3">طريقة الدفع</p>
+            <div class="grid grid-cols-3 gap-2">
+              <button
+                v-for="method in paymentMethods"
+                :key="method.value"
+                @click="selectedPayment = method.value"
+                :class="selectedPayment === method.value ? 'border-primary bg-primary/10' : 'border-slate-200 hover:border-slate-300'"
+                class="flex flex-col items-center gap-1 p-2 rounded-xl border-2 transition-all"
+              >
+                <span class="material-symbols-outlined text-[20px]">{{ method.icon }}</span>
+                <span class="text-xs">{{ method.label }}</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Coupon -->
+          <div class="mb-6 flex gap-2">
+            <input v-model="couponCode" type="text" placeholder="رمز الخصم" class="input-field text-sm flex-1" />
+            <button class="px-4 py-2 bg-slate-100 hover:bg-slate-200 rounded-xl text-sm font-bold transition-all">تطبيق</button>
+          </div>
+
+          <!-- Totals -->
+          <div class="space-y-3 text-sm border-t border-slate-200 pt-4">
+            <div class="flex justify-between">
+              <span class="text-slate-500">المجموع الفرعي</span>
+              <span class="font-medium">{{ cart.subtotal || 0 }} ر.س</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-slate-500">رسوم الشحن</span>
+              <span class="text-primary font-medium">{{ cart.shipping === 0 ? 'مجاني' : `${cart.shipping} ر.س` }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-slate-500">ضريبة القيمة المضافة (١٥٪)</span>
+              <span class="font-medium">{{ cart.tax || 0 }} ر.س</span>
+            </div>
+            <div class="flex justify-between text-base font-bold pt-2 border-t border-slate-200">
+              <span>الإجمالي الشامل</span>
+              <span>{{ cart.total || 0 }} ر.س</span>
+            </div>
+          </div>
+
+          <!-- Checkout Button -->
+          <button
+            @click="goToCheckout"
+            :disabled="checkingOut"
+            class="btn-primary w-full mt-6 py-4 text-base gap-2"
+          >
+            <span class="material-symbols-outlined">arrow_back</span>
+            {{ checkingOut ? 'جاري المعالجة...' : 'إتمام الطلب' }}
+          </button>
+
+          <p class="text-center text-xs text-slate-400 mt-3 flex items-center justify-center gap-1">
+            <span class="material-symbols-outlined text-[16px]">lock</span>
+            دفع آمن ١٠٠٪ ومشفر بواسطة ساتر
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
-<script>
-    export default {
-        components: {
-            HeaderWithTopbar: () => import('@/components/HeaderWithTopbar'),
-            Breadcrumb: () => import('@/components/Breadcrumb'),
-            TheFooter: () => import('@/components/TheFooter'),
-        },
-        data() {
-            return {
-                singleQuantity: 1
-            }
-        },
+<script setup lang="ts">
+const { cart, fetchCart, removeFromCart, updateCartItem } = useCart()
+const { isLoggedIn } = useAuth()
 
-        computed: {
-            products() {
-                return this.$store.getters['cart/getCart']
-            },
+const loading = ref(true)
+const checkingOut = ref(false)
+const couponCode = ref('')
+const selectedPayment = ref('cod')
 
-            total() {
-                return this.$store.getters['cart/getTotal']
-            },
-        },
+const paymentMethods = [
+  { value: 'cod', label: 'نقدي', icon: 'payments' },
+  { value: 'card', label: 'بطاقة', icon: 'credit_card' },
+  { value: 'apple_pay', label: 'Apple Pay', icon: 'phone_iphone' },
+]
 
-        mounted() {
-            this.$store.dispatch('cart/fetchCart')
-        },
+onMounted(async () => {
+  await fetchCart()
+  loading.value = false
+})
 
-        methods: {
-            incrementProduct(item) {
-                this.$store.dispatch('cart/updateQuantity', {
-                    itemId: item.id,
-                    quantity: item.quantity + 1
-                })
-            },
+const updateQuantity = async (itemId: number, qty: number) => {
+  if (qty < 1) return
+  await updateCartItem(itemId, qty)
+}
 
-            decrementProduct(item) {
-                if (item.quantity > 1) {
-                    this.$store.dispatch('cart/updateQuantity', {
-                        itemId: item.id,
-                        quantity: item.quantity - 1
-                    })
-                }
-            },
+const removeItem = async (itemId: number) => {
+  await removeFromCart(itemId)
+}
 
-            removeProduct(item) {
-                this.$notify({ type: 'success', text: this.$t('item_removed') })
-                this.$store.dispatch('cart/removeProductFromCart', item.id)
-            },
+const goToCheckout = async () => {
+  if (!isLoggedIn.value) {
+    navigateTo('/auth/login?redirect=/cart')
+    return
+  }
+  navigateTo('/checkout')
+}
 
-            clearCart() {
-                if (confirm(this.$t('clear_cart_confirm'))) {
-                    this.$notify({ type: 'success', text: this.$t('cart_cleared') })
-                    // Add clearCart action to store if needed, or loop removes
-                }
-            }
-        },
-
-        head() {
-            return {
-                title: this.$t('cart')
-            }
-        },
-    };
+useHead({ title: 'سلة التسوق | ساتر' })
 </script>

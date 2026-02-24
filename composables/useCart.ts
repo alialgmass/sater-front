@@ -1,239 +1,216 @@
-import { getApiBaseUrl, getAuthHeaders, handleApiError } from './api/helpers'
+// composables/useCart.ts
 
-// Define cart item type
 export interface CartItem {
   id: number
   product_id: number
-  product: any // Product object
+  product: {
+    id: number
+    name: string
+    price: number
+    image: string
+    vendor?: { name: string }
+  }
   quantity: number
-  price: number
-  total: number
-  options?: Record<string, any>
-}
-
-// Define cart type
-export interface Cart {
-  id: number
-  items: CartItem[]
   subtotal: number
-  tax: number
+}
+
+export interface Cart {
+  items: CartItem[]
+  cart_key?: string // For guest users
+  subtotal: number
   shipping: number
-  discount: number
+  tax: number
   total: number
-  created_at: string
-  updated_at: string
 }
 
-// Cart item payload for adding/updating
-export interface CartItemPayload {
-  product_id: number
-  quantity: number
-  options?: Record<string, any>
-}
-
-/**
- * Composable for cart operations
- */
 export const useCart = () => {
-  const baseUrl = getApiBaseUrl()
+  const { request } = useApi()
+  const { isLoggedIn } = useAuth()
+  
+  // Guest cart key stored in cookie
+  const cartKey = useCookie('sater_cart_key')
+  const cart = useState<Cart | null>('cart', () => null)
+  const cartCount = computed(() => cart.value?.items?.reduce((sum, item) => sum + item.quantity, 0) || 0)
 
-  /**
-   * Get current user's cart
-   */
-  const getCart = async (): Promise<Cart> => {
-    try {
-      const response = await $fetch<Cart>(`${baseUrl}/api/cart`, {
-        headers: getAuthHeaders(),
-      })
+  const toNumber = (value: any, fallback = 0) => {
+    const n = Number(value)
+    return Number.isFinite(n) ? n : fallback
+  }
 
-      return response
-    } catch (error: any) {
-      const apiError = handleApiError(error)
-      throw apiError
+  const extractCartKey = (payload: any): string | undefined => {
+    return payload?.body?.cart_key || payload?.cart_key || undefined
+  }
+
+  const normalizeCartItem = (raw: any): CartItem => {
+    const productId = toNumber(raw?.product_id ?? raw?.product?.id)
+    const quantity = toNumber(raw?.quantity, 1)
+    const price = toNumber(raw?.product?.price ?? raw?.price_at_add_time ?? raw?.price)
+    const subtotal = toNumber(raw?.subtotal, price * quantity)
+
+    return {
+      id: toNumber(raw?.id),
+      product_id: productId,
+      product: {
+        id: productId,
+        name: raw?.product?.name || raw?.product_name || '',
+        price,
+        image: raw?.product?.image || raw?.product_image || '',
+        vendor: raw?.product?.vendor || (raw?.vendor_name ? { name: raw.vendor_name } : undefined),
+      },
+      quantity,
+      subtotal,
     }
   }
 
-  /**
-   * Add item to cart
-   */
-  const addItem = async (itemData: { product_id: number; quantity: number; variant_id?: number | null }): Promise<Cart> => {
-    try {
-      const response = await $fetch<Cart>(`${baseUrl}/api/cart/add`, {
-        method: 'POST',
-        body: itemData,
-        headers: getAuthHeaders(),
-      })
+  const normalizeCartResponse = (payload: any): Cart => {
+    const source = payload?.body?.cart ?? payload?.body ?? payload?.cart ?? payload ?? {}
+    const rawItems = Array.isArray(source?.items)
+      ? source.items
+      : Array.isArray(source?.cart_items)
+        ? source.cart_items
+        : Array.isArray(source?.data)
+          ? source.data
+          : source?.cart_item
+            ? [source.cart_item]
+            : []
 
-      return response
-    } catch (error: any) {
-      const apiError = handleApiError(error)
-      throw apiError
+    const items = rawItems.map(normalizeCartItem)
+    const subtotal = toNumber(source?.subtotal, items.reduce((sum, item) => sum + toNumber(item.subtotal), 0))
+    const shipping = toNumber(source?.shipping, 0)
+    const tax = toNumber(source?.tax, 0)
+    const total = toNumber(source?.total, subtotal + shipping + tax)
+    const key = extractCartKey(payload)
+
+    return {
+      items,
+      cart_key: key,
+      subtotal,
+      shipping,
+      tax,
+      total,
     }
   }
 
-  /**
-   * Update item quantity in cart
-   */
-  const updateItemQuantity = async (itemId: number, quantity: number): Promise<Cart> => {
-    try {
-      const response = await $fetch<Cart>(`${baseUrl}/api/cart/items/${itemId}`, {
-        method: 'PUT',
-        body: { quantity },
-        headers: getAuthHeaders(),
-      })
-
-      return response
-    } catch (error: any) {
-      const apiError = handleApiError(error)
-      throw apiError
+  // ── Get Cart ──────────────────────────────────────────────
+  const fetchCart = async () => {
+    const params: any = {}
+    if (!isLoggedIn.value && cartKey.value) {
+      params.cart_key = cartKey.value
     }
+    const res = await request<any>('/api/cart', {
+      auth: isLoggedIn.value,
+      params,
+    })
+    if (res.data) {
+      const key = extractCartKey(res.data)
+      if (key) cartKey.value = key
+      cart.value = normalizeCartResponse(res.data)
+    }
+    return res
   }
 
-  /**
-   * Get cart items
-   */
-  const getCartItems = async (): Promise<Cart> => {
-    try {
-      const response = await $fetch<Cart>(`${baseUrl}/api/cart`, {
-        headers: getAuthHeaders(),
-      })
-
-      return response
-    } catch (error: any) {
-      const apiError = handleApiError(error)
-      throw apiError
+  // ── Add to Cart ───────────────────────────────────────────
+  const addToCart = async (productId: number, quantity = 1) => {
+    const body: any = { product_id: productId, quantity }
+    if (!isLoggedIn.value && cartKey.value) {
+      body.cart_key = cartKey.value
     }
+    const res = await request<any>('/api/cart/add', {
+      method: 'POST',
+      body,
+      auth: isLoggedIn.value,
+    })
+    if (res.data) {
+      const key = extractCartKey(res.data)
+      if (key) cartKey.value = key
+
+      const fetched = await fetchCart()
+
+      // Fallback when backend returns only cart_item and cart fetch is unavailable.
+      if (fetched.error) {
+        const source = (res.data as any)?.body ?? res.data
+        if (source?.cart_item) {
+          const addedItem = normalizeCartItem(source.cart_item)
+          const existingItems = cart.value?.items || []
+          const existingIndex = existingItems.findIndex((item) => item.id === addedItem.id || item.product_id === addedItem.product_id)
+          if (existingIndex >= 0) {
+            existingItems[existingIndex] = addedItem
+          } else {
+            existingItems.push(addedItem)
+          }
+          const subtotal = existingItems.reduce((sum, item) => sum + toNumber(item.subtotal), 0)
+          cart.value = {
+            items: [...existingItems],
+            cart_key: cartKey.value,
+            subtotal,
+            shipping: cart.value?.shipping || 0,
+            tax: cart.value?.tax || 0,
+            total: subtotal + (cart.value?.shipping || 0) + (cart.value?.tax || 0),
+          }
+        }
+      }
+    }
+    return res
   }
 
-  /**
-   * Remove item from cart
-   */
-  const removeItem = async (itemId: number): Promise<Cart> => {
-    try {
-      const response = await $fetch<Cart>(`${baseUrl}/api/cart/items/${itemId}`, {
-        method: 'DELETE',
-        headers: getAuthHeaders(),
-      })
+  // ── Remove from Cart ──────────────────────────────────────
+  // ⚠️ MISSING IN BACKEND: DELETE /api/cart/{item_id}
+  // Needs to be added in Laravel
+  const removeFromCart = async (itemId: number) => {
+    const params: any = {}
+    if (!isLoggedIn.value && cartKey.value) params.cart_key = cartKey.value
 
-      return response
-    } catch (error: any) {
-      const apiError = handleApiError(error)
-      throw apiError
-    }
+    const res = await request(`/api/cart/${itemId}`, {
+      method: 'DELETE',
+      auth: isLoggedIn.value,
+      params,
+    })
+    if (!res.error) await fetchCart()
+    return res
   }
 
-  /**
-   * Save item for later
-   */
-  const saveForLater = async (itemId: number): Promise<Cart> => {
-    try {
-      const response = await $fetch<Cart>(`${baseUrl}/api/cart/items/${itemId}/save-for-later`, {
-        method: 'POST',
-        headers: getAuthHeaders(),
-      })
+  // ── Update Quantity ───────────────────────────────────────
+  // ⚠️ MISSING IN BACKEND: PUT /api/cart/{item_id}
+  // Needs to be added in Laravel
+  const updateCartItem = async (itemId: number, quantity: number) => {
+    const body: any = { quantity }
+    if (!isLoggedIn.value && cartKey.value) body.cart_key = cartKey.value
 
-      return response
-    } catch (error: any) {
-      const apiError = handleApiError(error)
-      throw apiError
-    }
+    const res = await request(`/api/cart/${itemId}`, {
+      method: 'PUT',
+      body,
+      auth: isLoggedIn.value,
+    })
+    if (!res.error) await fetchCart()
+    return res
   }
 
-  /**
-   * Clear entire cart
-   */
-  const clearCart = async (): Promise<Cart> => {
-    try {
-      const response = await $fetch<Cart>(`${baseUrl}/api/cart/clear`, {
-        method: 'POST',
-        headers: getAuthHeaders(),
-      })
+  // ── Clear Cart ────────────────────────────────────────────
+  // ⚠️ MISSING IN BACKEND: DELETE /api/cart
+  const clearCart = async () => {
+    const params: any = {}
+    if (!isLoggedIn.value && cartKey.value) params.cart_key = cartKey.value
 
-      return response
-    } catch (error: any) {
-      const apiError = handleApiError(error)
-      throw apiError
+    const res = await request('/api/cart', {
+      method: 'DELETE',
+      auth: isLoggedIn.value,
+      params,
+    })
+    if (!res.error) {
+      cart.value = null
+      if (!isLoggedIn.value) cartKey.value = undefined
     }
-  }
-
-  /**
-   * Apply coupon to cart
-   */
-  const applyCoupon = async (code: string): Promise<Cart> => {
-    try {
-      const response = await $fetch<Cart>(`${baseUrl}/api/cart/coupon`, {
-        method: 'POST',
-        body: { code },
-        headers: getAuthHeaders(),
-      })
-
-      return response
-    } catch (error: any) {
-      const apiError = handleApiError(error)
-      throw apiError
-    }
-  }
-
-  /**
-   * Remove coupon from cart
-   */
-  const removeCoupon = async (): Promise<Cart> => {
-    try {
-      const response = await $fetch<Cart>(`${baseUrl}/api/cart/coupon`, {
-        method: 'DELETE',
-        headers: getAuthHeaders(),
-      })
-
-      return response
-    } catch (error: any) {
-      const apiError = handleApiError(error)
-      throw apiError
-    }
-  }
-
-  /**
-   * Save item for later
-   */
-  const saveForLater = async (itemId: number): Promise<Cart> => {
-    try {
-      const response = await $fetch<Cart>(`${baseUrl}/api/cart/items/${itemId}/save-for-later`, {
-        method: 'POST',
-        headers: getAuthHeaders(),
-      })
-
-      return response
-    } catch (error: any) {
-      const apiError = handleApiError(error)
-      throw apiError
-    }
-  }
-
-  /**
-   * Move saved item back to cart
-   */
-  const moveToCart = async (itemId: number): Promise<Cart> => {
-    try {
-      const response = await $fetch<Cart>(`${baseUrl}/api/cart/items/${itemId}/move-to-cart`, {
-        method: 'POST',
-        headers: getAuthHeaders(),
-      })
-
-      return response
-    } catch (error: any) {
-      const apiError = handleApiError(error)
-      throw apiError
-    }
+    return res
   }
 
   return {
-    getCart,
-    addItem,
-    updateItemQuantity,
-    removeItem,
+    cart,
+    cartCount,
+    cartKey,
+    fetchCart,
+    addToCart,
+    removeFromCart,
+    updateCartItem,
     clearCart,
-    applyCoupon,
-    removeCoupon,
-    saveForLater,
-    moveToCart,
   }
 }
