@@ -1,5 +1,5 @@
 <template>
-    <div class="shop-area pt-100 pb-100">
+    <div class="shop-area pt-100 pb-100" v-if="product">
         <div class="container">
             <div class="row">
                 <div class="col-md-6">
@@ -214,10 +214,13 @@
 
         mounted() {
             this.$nextTick(() => {
-                const swiperTop = this.$refs.swiperTop.$swiper
-                const swiperThumbs = this.$refs.swiperThumbs.$swiper
-                swiperTop.controller.control = swiperThumbs
-                swiperThumbs.controller.control = swiperTop
+                const swiperTop = this.$refs.swiperTop && this.$refs.swiperTop.$swiper
+                const swiperThumbs = this.$refs.swiperThumbs && this.$refs.swiperThumbs.$swiper
+                
+                if (swiperTop && swiperThumbs) {
+                    swiperTop.controller.control = swiperThumbs
+                    swiperThumbs.controller.control = swiperTop
+                }
             })
         },
 

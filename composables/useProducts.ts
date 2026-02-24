@@ -90,8 +90,11 @@ export interface ProductResponse {
 /**
  * Composable for product operations
  */
-export const useProducts = () => {
-  const baseUrl = getApiBaseUrl()
+/**
+ * Composable for product operations
+ */
+export const useProducts = (context: any) => {
+  const { $axios } = context
 
   /**
    * Get all products with optional filters
@@ -109,11 +112,9 @@ export const useProducts = () => {
       }
 
       const queryString = params.toString()
-      const url = `${baseUrl}/api/v1/products${queryString ? '?' + queryString : ''}`
+      const url = `/v1/products${queryString ? '?' + queryString : ''}`
 
-      const response = await $fetch<ProductResponse>(url, {
-        headers: getAuthHeaders(),
-      })
+      const response = await $axios.$get(url)
 
       return response
     } catch (error: any) {
@@ -127,10 +128,7 @@ export const useProducts = () => {
    */
   const getProduct = async (productId: number): Promise<Product> => {
     try {
-      const response = await $fetch<Product>(`${baseUrl}/api/products/${productId}`, {
-        headers: getAuthHeaders(),
-      })
-
+      const response = await $axios.$get(`/products/${productId}`)
       return response
     } catch (error: any) {
       const apiError = handleApiError(error)
@@ -143,10 +141,7 @@ export const useProducts = () => {
    */
   const getFeaturedProducts = async (limit = 10): Promise<Product[]> => {
     try {
-      const response = await $fetch<Product[]>(`${baseUrl}/api/products/featured?limit=${limit}`, {
-        headers: getAuthHeaders(),
-      })
-
+      const response = await $axios.$get(`/products/featured?limit=${limit}`)
       return response
     } catch (error: any) {
       const apiError = handleApiError(error)
@@ -159,10 +154,7 @@ export const useProducts = () => {
    */
   const getNewestProducts = async (limit = 10): Promise<Product[]> => {
     try {
-      const response = await $fetch<Product[]>(`${baseUrl}/api/products/newest?limit=${limit}`, {
-        headers: getAuthHeaders(),
-      })
-
+      const response = await $axios.$get(`/products/newest?limit=${limit}`)
       return response
     } catch (error: any) {
       const apiError = handleApiError(error)
@@ -175,10 +167,7 @@ export const useProducts = () => {
    */
   const getOnSaleProducts = async (limit = 10): Promise<Product[]> => {
     try {
-      const response = await $fetch<Product[]>(`${baseUrl}/api/products/on-sale?limit=${limit}`, {
-        headers: getAuthHeaders(),
-      })
-
+      const response = await $axios.$get(`/products/on-sale?limit=${limit}`)
       return response
     } catch (error: any) {
       const apiError = handleApiError(error)
@@ -191,13 +180,7 @@ export const useProducts = () => {
    */
   const getRelatedProducts = async (productId: number, limit = 6): Promise<Product[]> => {
     try {
-      const response = await $fetch<Product[]>(
-        `${baseUrl}/api/products/${productId}/related?limit=${limit}`,
-        {
-          headers: getAuthHeaders(),
-        }
-      )
-
+      const response = await $axios.$get(`/products/${productId}/related?limit=${limit}`)
       return response
     } catch (error: any) {
       const apiError = handleApiError(error)
@@ -224,12 +207,9 @@ export const useProducts = () => {
       }
 
       const queryString = params.toString()
-      const url = `${baseUrl}/api/categories/${categoryId}/products${queryString ? '?' + queryString : ''
-        }`
+      const url = `/categories/${categoryId}/products${queryString ? '?' + queryString : ''}`
 
-      const response = await $fetch<ProductResponse>(url, {
-        headers: getAuthHeaders(),
-      })
+      const response = await $axios.$get(url)
 
       return response
     } catch (error: any) {

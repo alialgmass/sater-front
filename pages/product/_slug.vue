@@ -1,9 +1,12 @@
 <template>
     <div class="product-details-page-wrapper">
         <HeaderWithTopbar containerClass="container" />
-        <Breadcrumb :pageTitle="product.title" />
-        <ProductDetailsWrapper :product="product" />
-        <ProductDetailsDescriptionReview />
+        <Breadcrumb :pageTitle="product ? (product.name || product.title) : 'Loading...'" />
+        <ProductDetailsWrapper :product="product" v-if="product" />
+        <div v-else class="text-center pt-100 pb-100">
+            <p>Loading product details...</p>
+        </div>
+        <ProductDetailsDescriptionReview v-if="product" />
         <TheFooter />
     </div>
 </template>
@@ -12,19 +15,29 @@
     export default {
         data() {
             return {
-                slug: this.$route.params.slug,
+                id: this.$route.params.slug
+            }
+        },
+
+        async asyncData({ store, params, error }) {
+            try {
+                const id = params.slug;
+                await store.dispatch('products/fetchProduct', id);
+                return { id };
+            } catch (e) {
+                error({ statusCode: 404, message: 'Product not found' });
             }
         },
 
         computed: {
             product() {
-                return this.$store.getters.getProducts.find(product => this.slugify(product.title) == this.slug);
+                return this.$store.state.products.product;
             },
         },
 
         head() {
             return {
-                title: this.product.title
+                title: this.product ? (this.product.name || 'Product Details') : 'Product Details'
             }
         },
 

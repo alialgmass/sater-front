@@ -18,7 +18,7 @@
                                         <option value="high2low">{{ $t('price_high_low') }}</option>
                                     </select>
                                 </div>
-                                <p>{{ $t('showing') }} {{perPage * currentPage - perPage + 1}} {{ $t('to') }} {{perPage * currentPage > filterItems.length ? filterItems.length : perPage * currentPage}} {{ $t('of') }} {{filterItems.length}} {{ $t('results') }}</p>
+                                <p>{{ $t('showing') }} {{perPage * currentPage - perPage + 1}} {{ $t('to') }} {{perPage * currentPage > getTotal ? getTotal : perPage * currentPage}} {{ $t('of') }} {{getTotal}} {{ $t('results') }}</p>
                             </div>
                             <div class="shop-tab">
                                 <button @click="layout = 'twoColumn'" :class="{ active : layout === 'twoColumn' }">
@@ -37,7 +37,7 @@
                         <!-- shop product -->
                         <div class="shop-bottom-area mt-35">
                             <div class="row product-layout" :class="{ 'list': layout === 'list', 'grid three-column': layout === 'threeColumn', 'grid two-column': layout === 'twoColumn' }">
-                                <div class="col-xl-4 col-sm-6" v-for="(product, index) in getItems" :key="index" >
+                                <div class="col-xl-4 col-sm-6" v-for="(product, index) in products" :key="index" >
                                     <ProductGridItem :product="product" :layout="layout"  />
                                 </div>
                             </div>
@@ -45,7 +45,7 @@
                         <!-- end shop product -->
 
                         <div v-if="getPaginateCount > 1">
-                            <pagination class="pro-pagination-style shop-pagination mt-30" v-model="currentPage" :per-page="perPage" :records="filterItems.length" @paginate="paginateClickCallback" :page-count="getPaginateCount" />
+                            <pagination class="pro-pagination-style shop-pagination mt-30" v-model="currentPage" :per-page="perPage" :records="getTotal" @paginate="paginateClickCallback" :page-count="getPaginateCount" />
                         </div>
                     </div>
 
@@ -90,13 +90,12 @@
             products() {
                 return this.$store.state.products.products
             },
-
-            getItems() {
-                return this.products;
-            },
             getPaginateCount() {
                 return this.$store.state.products.pagination ? this.$store.state.products.pagination.last_page : 1;
             },
+            getTotal() {
+                return this.$store.state.products.pagination ? this.$store.state.products.pagination.total : 0;
+            }
         },
 
         mounted(){
@@ -107,56 +106,49 @@
 
         methods: {
             async fetchProducts() {
+                const query = this.$route.query;
                 const params = {
-                    page: this.currentPage,
+                    page: query.page || 1,
                     per_page: this.perPage,
-                    category: this.$route.query.category,
-                    color_id: this.$route.query.color_id,
-                    size_id: this.$route.query.size_id,
-                    tag_id: this.$route.query.tag_id,
-                    q: this.$route.query.q,
+                    category_id: query.category_id,
+                    color_id: query.color_id,
+                    size_id: query.size_id,
+                    tag_id: query.tag_id,
+                    min_price: query.min_price,
+                    max_price: query.max_price,
+                    on_sale: query.on_sale,
+                    q: query.q,
                     sort: this.selectedPrice === 'low2high' ? 'price_asc' : (this.selectedPrice === 'high2low' ? 'price_desc' : null)
                 }
+                
+                // Cleanup undefined params
+                Object.keys(params).forEach(key => params[key] === undefined && delete params[key]);
+
                 await this.$store.dispatch('products/fetchProducts', params)
+                this.currentPage = Number(query.page || 1)
             },
 
             paginateClickCallback(page) {
-                this.currentPage = Number(page);
-                this.fetchProducts()
-            },
-
-            discountedPrice(product) {
-                return product.price - (product.price * product.discount / 100)
-            },
-
-            slugify(text) {
-                return text
-                    .toString()
-                    .toLowerCase()
-                    .replace(/\s+/g, "-") // Replace spaces with -
-                    .replace(/[^\w-]+/g, "") // Remove all non-word chars
-                    .replace(/--+/g, "-") // Replace multiple - with single -
-                    .replace(/^-+/, "") // Trim - from start of text
-                    .replace(/-+$/, ""); // Trim - from end of text
+                this.$router.push({
+                    path: this.$route.path,
+                    query: {
+                        ...this.$route.query,
+                        page: page
+                    }
+                })
             }
         },
 
         watch: {
-            $route(){
-                this.fetchProducts()
+            '$route.query': {
+                deep: true,
+                handler() {
+                    this.fetchProducts()
+                }
             },
 
             selectedPrice(){
-                switch (this.selectedPrice) {
-                    case "low2high":
-                        this.filterItems =  this.filterItems.sort((a, b)=> this.discountedPrice(a) - this.discountedPrice(b))
-                        break;
-                    case "high2low":
-                        this.filterItems =  this.filterItems.sort((a, b)=> this.discountedPrice(b) -  this.discountedPrice(a))
-                        break;
-                    default:
-                        this.filterItems = [...this.products]
-                }
+                this.fetchProducts()
             }
         },
 
