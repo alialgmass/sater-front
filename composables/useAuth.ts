@@ -19,9 +19,10 @@ export const useAuth = () => {
     })
     if (res.data) {
       const d = res.data as any
-      if (d.token) {
-        token.value = d.token
-        user.value = d.user
+      const body = d.body || d
+      if (body.token) {
+        token.value = body.token
+        user.value = body.user || user.value
       }
     }
     return res
@@ -39,9 +40,10 @@ export const useAuth = () => {
     })
     if (res.data) {
       const d = res.data as any
-      if (d.token) {
-        token.value = d.token
-        user.value = d.user
+      const body = d.body || d
+      if (body.token) {
+        token.value = body.token
+        user.value = body.user || user.value
       }
     }
     return res
@@ -54,6 +56,15 @@ export const useAuth = () => {
       body: { phone, otp },
       auth: true,
     })
+    if (res.data) {
+      const d = res.data as any
+      // Handle nested body structure as per backend response
+      const body = d.body || d
+      if (body.token) {
+        token.value = body.token
+        user.value = body.user || user.value
+      }
+    }
     return res
   }
 

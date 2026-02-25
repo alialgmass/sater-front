@@ -4,17 +4,19 @@
 export const useApi = () => {
   const config = useRuntimeConfig()
   const baseURL = config.public.apiBase
+  const token = useCookie('sater_token')
 
-  const getHeaders = (withAuth = false): Record<string, string> => {
+  const getHeaders = (withAuth: boolean | undefined): Record<string, string> => {
     const headers: Record<string, string> = {
       'Accept': 'application/json',
       'Content-Type': 'application/json',
     }
-    if (withAuth) {
-      const token = useCookie('sater_token')
-      if (token.value) {
-        headers['Authorization'] = `Bearer ${token.value}`
-      }
+
+    // Default to true if not explicitly false
+    const shouldAuth = withAuth !== false
+
+    if (shouldAuth && token.value) {
+      headers['Authorization'] = `Bearer ${token.value}`
     }
     return headers
   }
