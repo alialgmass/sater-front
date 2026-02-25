@@ -27,7 +27,7 @@ export const useApi = () => {
       auth?: boolean
       params?: Record<string, any>
     } = {}
-  ): Promise<{ data: T | null; error: string | null }> => {
+  ): Promise<{ data: T | null; error: string | null; fullResponse?: any }> => {
     try {
       const url = new URL(`${baseURL}${endpoint}`)
       if (options.params) {
@@ -47,10 +47,14 @@ export const useApi = () => {
       const json = await response.json()
 
       if (!response.ok) {
-        return { data: null, error: json.message || 'حدث خطأ ما' }
+        return {
+          data: null,
+          error: json.message || 'حدث خطأ ما',
+          fullResponse: json
+        }
       }
 
-      return { data: json, error: null }
+      return { data: json, error: null, fullResponse: json }
     } catch (err: any) {
       return { data: null, error: err.message || 'فشل الاتصال بالخادم' }
     }

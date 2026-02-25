@@ -13,38 +13,25 @@
       </div>
 
       <div class="bg-white dark:bg-slate-800 rounded-2xl p-8 shadow-sm">
-        <!-- OTP Step -->
-        <div v-if="step === 'otp'" class="text-center space-y-5">
-          <span class="material-symbols-outlined text-5xl text-primary">sms</span>
-          <h2 class="text-xl font-bold">تحقق من هاتفك</h2>
-          <p class="text-slate-500 text-sm">أرسلنا رمز تحقق مكون من ٦ أرقام</p>
-          <input
-            v-model="otpCode"
-            type="text"
-            maxlength="6"
-            class="input-field text-center text-3xl tracking-widest py-4"
-            placeholder="######"
-          />
-          <div v-if="error" class="p-3 bg-red-50 text-red-600 text-sm rounded-xl">{{ error }}</div>
-          <button @click="submitOtp" :disabled="loading" class="btn-primary w-full py-4 text-base">
-            {{ loading ? 'جاري التحقق...' : 'تأكيد الرمز' }}
-          </button>
-        </div>
-
-        <!-- Register Form -->
-        <form v-else @submit.prevent="onRegister" class="space-y-5">
+        <form @submit.prevent="onRegister" class="space-y-5">
           <div>
             <label class="text-sm font-medium block mb-1">الاسم الكامل</label>
             <input v-model="form.name" type="text" required class="input-field" placeholder="اسمك الكريم" />
           </div>
+          
           <div>
             <label class="text-sm font-medium block mb-1">رقم الهاتف</label>
-            <input v-model="form.phone" type="tel" required class="input-field" placeholder="+966xxxxxxxxx" />
+            <CountryCodeSelector v-model="countryCode">
+              <input
+                v-model="form.phone"
+                type="tel"
+                required
+                class="input-field flex-1"
+                placeholder="5xxxxxxxx"
+              />
+            </CountryCodeSelector>
           </div>
-          <div>
-            <label class="text-sm font-medium block mb-1">البريد الإلكتروني</label>
-            <input v-model="form.email" type="email" required class="input-field" placeholder="john@example.com" />
-          </div>
+
           <div>
             <label class="text-sm font-medium block mb-1">كلمة المرور</label>
             <input v-model="form.password" type="password" required minlength="8" class="input-field" placeholder="٨ أحرف على الأقل" />
@@ -71,16 +58,16 @@
 </template>
 
 <script setup lang="ts">
-const { register, verifyOtp } = useAuth()
+import { useAuth } from '../../composables/useAuth'
 
-const step = ref<'register' | 'otp'>('register')
+const { register } = useAuth()
+
 const loading = ref(false)
 const error = ref('')
-const otpCode = ref('')
+const countryCode = ref('+966')
 
 const form = reactive({
   name: '',
-  email: '',
   phone: '',
   password: '',
   password_confirmation: '',
@@ -93,23 +80,15 @@ const onRegister = async () => {
   }
   loading.value = true
   error.value = ''
-  const res = await register(form)
+  
+  // Format phone: +code + number
+  const fullPhone = `${countryCode.value}${form.phone.replace(/^0+/, '')}`
+  
+  const res = await register({ ...form, phone: fullPhone })
   if (res.error) {
     error.value = res.error
   } else {
-    step.value = 'otp'
-  }
-  loading.value = false
-}
-
-const submitOtp = async () => {
-  loading.value = true
-  error.value = ''
-  const res = await verifyOtp(otpCode.value)
-  if (res.error) {
-    error.value = res.error
-  } else {
-    navigateTo('/')
+    navigateTo(`/auth/verify?phone=${encodeURIComponent(fullPhone)}`)
   }
   loading.value = false
 }

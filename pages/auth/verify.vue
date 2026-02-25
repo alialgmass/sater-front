@@ -9,71 +9,14 @@
           </div>
           <span class="text-3xl font-bold font-display">ساتر</span>
         </NuxtLink>
-        <h1 class="text-2xl font-bold mt-6 mb-2">مرحباً بعودتك</h1>
-        <p class="text-slate-500">سجلي دخولك للوصول إلى حسابك</p>
       </div>
 
       <div class="bg-white dark:bg-slate-800 rounded-2xl p-8 shadow-sm">
-        <form v-if="!needsOtp" @submit.prevent="onSubmit" class="space-y-5">
-          <!-- Phone Number -->
-          <div>
-            <label class="text-sm font-medium block mb-1">رقم الهاتف</label>
-            <CountryCodeSelector v-model="countryCode">
-              <input
-                v-model="form.phone"
-                type="tel"
-                required
-                class="input-field flex-1"
-                placeholder="5xxxxxxxx"
-              />
-            </CountryCodeSelector>
-          </div>
-
-          <!-- Password -->
-          <div>
-            <label class="text-sm font-medium block mb-1">كلمة المرور</label>
-            <div class="relative">
-              <input
-                v-model="form.password"
-                :type="showPassword ? 'text' : 'password'"
-                required
-                class="input-field pr-4 pl-12"
-                placeholder="••••••••"
-              />
-              <button
-                type="button"
-                @click="showPassword = !showPassword"
-                class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-primary"
-              >
-                <span class="material-symbols-outlined text-[20px]">{{ showPassword ? 'visibility_off' : 'visibility' }}</span>
-              </button>
-            </div>
-          </div>
-
-          <!-- Error -->
-          <div v-if="error" class="p-3 bg-red-50 text-red-600 text-sm rounded-xl">{{ error }}</div>
-
-          <!-- Submit -->
-          <button
-            type="submit"
-            :disabled="loading"
-            class="btn-primary w-full py-4 text-base"
-          >
-            {{ loading ? 'جاري تسجيل الدخول...' : 'تسجيل الدخول' }}
-          </button>
-
-          <p class="text-center text-sm text-slate-500">
-            ليس لديكِ حساب؟
-            <NuxtLink to="/auth/register" class="text-primary font-bold hover:underline">سجلي الآن</NuxtLink>
-          </p>
-        </form>
-
-        <!-- OTP Flow -->
-        <div v-else class="text-center space-y-6">
+        <div class="text-center space-y-6">
           <div class="space-y-2">
-            <h2 class="text-2xl font-bold">تأكيد رقم الهاتف</h2>
+            <h1 class="text-2xl font-bold">تأكيد رقم الهاتف</h1>
             <p class="text-slate-500 text-sm leading-relaxed">
-              تم إرسال رمز التحقق المكون من 4 أرقام إلى رقم هاتفك المسجل ({{ countryCode }} {{ form.phone }}). يرجى إدخاله للمتابعة.
+              تم إرسال رمز التحقق المكون من 4 أرقام إلى رقم هاتفك المسجل ({{ phone }}). يرجى إدخاله للمتابعة.
             </p>
           </div>
 
@@ -138,19 +81,17 @@
 <script setup lang="ts">
 import { useAuth } from '../../composables/useAuth'
 
-const { login, verifyOtp } = useAuth()
+const { verifyOtp, resendOtp: authResendOtp } = useAuth()
 const route = useRoute()
+const router = useRouter()
 
-const countryCode = ref('+966')
-const form = reactive({ phone: '', password: '' })
-const loading = ref(false)
+const phone = computed(() => route.query.phone as string || '')
+const redirect = computed(() => route.query.redirect as string || '/')
+
 const error = ref('')
-const showPassword = ref(false)
-const needsOtp = ref(false)
-
-// OTP State
+const loading = ref(false)
 const otpDigits = ref(['', '', '', ''])
-const timer = ref(120) // 2 minutes
+const timer = ref(120)
 let timerInterval: any = null
 
 const startTimer = () => {
@@ -177,59 +118,24 @@ const onOtpBackspace = (e: any, index: number) => {
   }
 }
 
-const onSubmit = async () => {
-  loading.value = true
-  error.value = ''
-
-  // Format phone: +code + number (ensure no double +)
-  const fullPhone = `${countryCode.value}${form.phone.replace(/^0+/, '')}`
-  
-  const res = await login({ phone: fullPhone, password: form.password })
-  
-  if (res.error) {
-    if (res.fullResponse?.custom_code === 4010) {
-      const redirect = route.query.redirect as string || '/'
-      navigateTo(`/auth/verify?phone=${encodeURIComponent(fullPhone)}&redirect=${encodeURIComponent(redirect)}`)
-    } else {
-      error.value = res.error
-    }
-  } else {
-    const d = res.data as any
-    if (d?.requires_otp || d?.user?.needs_verification) {
-      needsOtp.value = true
-      startTimer()
-    } else {
-      const redirect = route.query.redirect as string || '/'
-      navigateTo(redirect)
-    }
-  }
-  loading.value = false
-}
-
 const onVerify = async () => {
   loading.value = true
   error.value = ''
   const code = otpDigits.value.join('')
-  
-  // Recalculate fullPhone to ensure it's fresh (or use the stored one if we added a ref)
-  const fullPhone = `${countryCode.value}${form.phone.replace(/^0+/, '')}`
-  
-  const res = await verifyOtp(fullPhone, code)
+  const res = await verifyOtp(phone.value, code)
   if (res.error) {
     error.value = res.error
   } else {
-    const redirect = route.query.redirect as string || '/'
-    navigateTo(redirect)
+    router.push(redirect.value)
   }
   loading.value = false
 }
 
 const resendOtp = async () => {
-  // Logic to resend OTP - usually just calls login again or a specific resend endpoint
+  if (!phone.value) return
   error.value = ''
   loading.value = true
-  const fullPhone = `${countryCode.value}${form.phone.replace(/^0+/, '')}`
-  const res = await login({ phone: fullPhone, password: form.password })
+  const res = await authResendOtp(phone.value)
   if (res.error) {
     error.value = res.error
   } else {
@@ -239,10 +145,18 @@ const resendOtp = async () => {
   loading.value = false
 }
 
+onMounted(() => {
+  if (!phone.value) {
+    router.push('/auth/login')
+  } else {
+    resendOtp()
+  }
+})
+
 onUnmounted(() => {
   if (timerInterval) clearInterval(timerInterval)
 })
 
-useHead({ title: 'تسجيل الدخول | ساتر' })
+useHead({ title: 'تأكيد الرمز | ساتر' })
 definePageMeta({ layout: false })
 </script>

@@ -9,18 +9,15 @@ export const useAuth = () => {
   // ── Register ──────────────────────────────────────────────
   const register = async (data: {
     name: string
-    email: string
+    phone: string
     password: string
     password_confirmation: string
-    phone: string
   }) => {
-    const res = await request('/api/register', {
+    const res = await request('/api/auth/register', {
       method: 'POST',
       body: data,
     })
     if (res.data) {
-      // After register, user needs OTP verification
-      // Store token if returned immediately
       const d = res.data as any
       if (d.token) {
         token.value = d.token
@@ -32,11 +29,11 @@ export const useAuth = () => {
 
   // ── Login ─────────────────────────────────────────────────
   const login = async (data: {
-    email: string
+    phone: string
     password: string
     device_name?: string
   }) => {
-    const res = await request('/api/login', {
+    const res = await request('/api/auth/login', {
       method: 'POST',
       body: { device_name: 'web_app', ...data },
     })
@@ -51,11 +48,20 @@ export const useAuth = () => {
   }
 
   // ── Verify OTP ────────────────────────────────────────────
-  const verifyOtp = async (otp: string) => {
-    const res = await request('/api/verify-otp', {
+  const verifyOtp = async (phone: string, otp: string) => {
+    const res = await request('/api/auth/verify-otp', {
       method: 'POST',
-      body: { otp },
+      body: { phone, otp },
       auth: true,
+    })
+    return res
+  }
+
+  // ── Resend OTP ────────────────────────────────────────────
+  const resendOtp = async (phone: string) => {
+    const res = await request('/api/auth/resend-otp', {
+      method: 'POST',
+      body: { phone },
     })
     return res
   }
@@ -83,6 +89,7 @@ export const useAuth = () => {
     register,
     login,
     verifyOtp,
+    resendOtp,
     fetchProfile,
     logout,
   }
